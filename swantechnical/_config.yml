@@ -20,9 +20,9 @@
 
 title: Swan-Technical
 email: your-email@example.com
-description: >- # this means to ignore newlines until "baseurl:"
+description:  # this means to ignore newlines until "baseurl:"
   Microsoft Technology thoughts and ideas
-baseurl: "/swantechnical" # the subpath of your site, e.g. /blog
+baseurl: "" # the subpath of your site, e.g. /blog
 url: "www.mikeswantek.com" # the base hostname & protocol for your site, e.g. http://example.com
 twitter_username: EltonSwann
 github_username:  mswantek68
