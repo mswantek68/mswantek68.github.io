@@ -182,6 +182,27 @@ body {
   color: var(--muted);
 }
 
+.post-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  font-family: "Source Sans 3", "Segoe UI", sans-serif;
+}
+
 .post-meta {
   font-size: 0.9rem;
   color: var(--muted);
@@ -222,6 +243,76 @@ body {
 .post-content h3 {
   font-family: "Playfair Display", Georgia, serif;
   margin-top: 2rem;
+}
+
+.share-block {
+  margin-top: 36px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+}
+
+.share-label {
+  margin: 0 0 10px;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+}
+
+.share-links {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.share-link {
+  text-decoration: none;
+}
+
+.share-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.9rem;
+  font-family: "Source Sans 3", "Segoe UI", sans-serif;
+}
+
+.share-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.share-link:hover .share-icon {
+  opacity: 0.85;
+}
+
+.comments {
+  margin-top: 32px;
+}
+
+.archive-month {
+  margin-top: 2.5rem;
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 1.6rem;
+}
+
+.archive-category {
+  margin-top: 2rem;
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 1.3rem;
+}
+
+.category-jump {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 16px 0 24px;
 }
 
 .site-footer {
