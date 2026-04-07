@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+  {% include head.html %}
+  <body>
+    <div class="bg-orbit"></div>
+    <header class="site-header">
+      <div class="container">
+        <a class="logo" href="{{ "/" | relative_url }}">
+          <img class="logo-mark" src="{{ "/assets/img/swan.svg" | relative_url }}" alt="Swan logo">
+          <span class="logo-text">{{ site.title }}</span>
+        </a>
+        <nav class="nav">
+          <a href="{{ "/" | relative_url }}">Home</a>
+          <a href="{{ "/about" | relative_url }}">About</a>
+          <a href="{{ "/archive" | relative_url }}">Archive</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="site-main">
+      <div class="container">
+        {{ content }}
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container">
+        <p>© {{ "now" | date: "%Y" }} {{ site.title }}. Built on GitHub Pages.</p>
+      </div>
+    </footer>
+  </body>
+</html>
