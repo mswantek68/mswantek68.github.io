@@ -1,0 +1,21 @@
+title: Mike Swantek
+email: 
+description: >-
+  Notes on building, learning, and shipping.
+baseurl: ""
+url: "https://mikeswantek.com"
+permalink: /:year/:month/:day/:title/
+timezone: America/Los_Angeles
+markdown: kramdown
+
+collections:
+  posts:
+    output: true
+
+defaults:
+  - scope:
+      path: ""
+      type: posts
+    values:
+      layout: post
+      author: Mike Swantek
