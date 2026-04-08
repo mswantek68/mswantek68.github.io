@@ -1,7 +1,7 @@
 ﻿---
 title: Enrich your SharePoint list data using Microsoft Flow and APIs
 date: 2019-11-21 08:00:00 -0700
-categories: [infrastructure]
+categories: [enrichment]
 ---
 
 ![alt text](/assets/images/posts/enrich-your-sharepoint-list-data-using-microsoft-flow-and-apis/enrich.png)

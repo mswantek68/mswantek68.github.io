@@ -1,7 +1,7 @@
 ﻿---
 title: Using PIPL API Service and Microsoft Logic Apps to enrich your marketing list
 date: 2019-07-11 08:00:00 -0700
-categories: [infrastructure]
+categories: [logic-apps,enrichment]
 ---
 ![alt text](/assets/images/posts/use-pipl-api-service-and-microsoft-logic-apps-to-enrich-marketing-list/image-1.jpg)
 PIPL ("PEOPLE") is a service used to search for a person and return relevant information about them. This service is a fee per transaction service that will "enrich" the information of a person that you send it. There are several options to use the service, upload a spreadsheet of contacts and select the enrichment you would like returned, or an API that returns a JSON payload. The API has three levels of access ranging from $0.10 to $0.40 per returned record.
