@@ -1,7 +1,7 @@
 ﻿---
 title: Use a Try, Catch in Logic Apps / Flow
 date: 2019-07-16 08:00:00 -0700
-categories: [infrastructure]
+categories: [logic-apps,automation]
 ---
 ![Screen shot of bear trap](/assets/images/posts/use-a-try-catch-in-logic-apps-flow/image-1.jpg)
 I am creating a Logic App that utilizes a REST API from UPS (by way of the USPS) to verify and correct physical mailing addresses in the USA. I have a SQL Table that houses name, address_1, address_2, city, state and zip code. There are issues with my list of physical addresses, mostly that the address_1 and address_2 lines are combined into the address_1 field, or there are misspellings in street names, etc. On top of that, depending on the address, the USPS API will generate response JSON that is either a string, or an array, or an array of arrays. Because of this, several steps are required in the Logic App to decide which parsing strategy to utilize. This is where the error handling, or "Try-Catch" comes in.

@@ -1,7 +1,7 @@
 ﻿---
 title: Finding unique values and remove null values with Logic Apps
 date: 2019-04-03 08:00:00 -0700
-categories: [infrastructure]
+categories: [logic-apps,automation]
 ---
 
 ![Logic App screen](/assets/images/posts/finding-unique-values-and-remove-null-values-with-logic-apps/finding-unique-values-logic-app-screen.png)

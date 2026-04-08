@@ -1,7 +1,7 @@
 ﻿---
 title: Add enrichment to your data with Power Query - Instead of an HTTP connector
 date: 2019-11-20 08:00:00 -0700
-categories: [infrastructure]
+categories: [enrichement,automation]
 ---
 
 

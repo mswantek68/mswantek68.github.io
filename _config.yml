@@ -1,11 +1,11 @@
 title: Swan-Technical
 email: 
 description: >-
-  Real-world enablement workflows for Microsoft data and AI.
+  Real-world enablement workflows for Microsoft data and AI and end-to-end automation
 baseurl: ""
 url: "https://mikeswantek.com"
 permalink: /:year/:month/:day/:title/
-timezone: America/Los_Angeles
+timezone: America/Detroit
 markdown: kramdown
 
 collections:
