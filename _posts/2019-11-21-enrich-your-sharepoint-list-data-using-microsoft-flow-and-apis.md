@@ -164,15 +164,5 @@ In this demonstration, we have started with a SharePoint list, added columns for
 ![](/assets/images/posts/enrich-your-sharepoint-list-data-using-microsoft-flow-and-apis/image-14.png)
 
 
-### Share this:
-
-
-
-- [Click to share on Twitter (Opens in new window)](https://web.archive.org/web/20220204034157/https://mikeswantek.com/enrich-your-sharepoint-list-data-using-microsoft-flow-and-apis/?share=twitter)
-- [Click to share on LinkedIn (Opens in new window)](https://web.archive.org/web/20220204034157/https://mikeswantek.com/enrich-your-sharepoint-list-data-using-microsoft-flow-and-apis/?share=linkedin)
-- [Click to share on Facebook (Opens in new window)](https://web.archive.org/web/20220204034157/https://mikeswantek.com/enrich-your-sharepoint-list-data-using-microsoft-flow-and-apis/?share=facebook)
-- [Click to share on Reddit (Opens in new window)](https://web.archive.org/web/20220204034157/https://mikeswantek.com/enrich-your-sharepoint-list-data-using-microsoft-flow-and-apis/?share=reddit)
-- [Click to print (Opens in new window)](https://web.archive.org/web/20220204034157/https://mikeswantek.com/enrich-your-sharepoint-list-data-using-microsoft-flow-and-apis/#print)
--
 
 

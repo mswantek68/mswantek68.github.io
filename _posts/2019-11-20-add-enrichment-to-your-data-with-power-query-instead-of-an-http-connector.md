@@ -255,15 +255,5 @@ Happy Enriching!
 
 
 
-### Share this:
-
-
-
-- [Click to share on Twitter (Opens in new window)](https://web.archive.org/web/20220406080916/https://mikeswantek.com/add-enrichment-to-your-data-with-power-query-instead-of-an-http-connector/?share=twitter)
-- [Click to share on LinkedIn (Opens in new window)](https://web.archive.org/web/20220406080916/https://mikeswantek.com/add-enrichment-to-your-data-with-power-query-instead-of-an-http-connector/?share=linkedin)
-- [Click to share on Facebook (Opens in new window)](https://web.archive.org/web/20220406080916/https://mikeswantek.com/add-enrichment-to-your-data-with-power-query-instead-of-an-http-connector/?share=facebook)
-- [Click to share on Reddit (Opens in new window)](https://web.archive.org/web/20220406080916/https://mikeswantek.com/add-enrichment-to-your-data-with-power-query-instead-of-an-http-connector/?share=reddit)
-- [Click to print (Opens in new window)](https://web.archive.org/web/20220406080916/https://mikeswantek.com/add-enrichment-to-your-data-with-power-query-instead-of-an-http-connector/#print)
--
 
 
