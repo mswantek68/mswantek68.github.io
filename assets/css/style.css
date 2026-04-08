@@ -239,6 +239,12 @@ body {
   font-size: 1.05rem;
 }
 
+.post-content img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
 .post-content h2,
 .post-content h3 {
   font-family: "Playfair Display", Georgia, serif;
