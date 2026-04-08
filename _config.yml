@@ -1,7 +1,7 @@
 title: Swan-Technical
 email: 
 description: >-
-  Notes on building, learning, and shipping.
+  Real-world enablement workflows for Microsoft data and AI.
 baseurl: ""
 url: "https://mikeswantek.com"
 permalink: /:year/:month/:day/:title/
