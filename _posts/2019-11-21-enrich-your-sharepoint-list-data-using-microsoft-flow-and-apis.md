@@ -4,7 +4,7 @@ date: 2019-11-21 08:00:00 -0700
 categories: [infrastructure]
 ---
 
-![alt text](../assets/images/posts/enrich-your-sharepoint-list-data-using-microsoft-flow-and-apis/enrich.png)
+![alt text](/assets/images/posts/enrich-your-sharepoint-list-data-using-microsoft-flow-and-apis/enrich.png)
 
 ## Why enrich data?
 
@@ -35,7 +35,7 @@ For this demonstration, I will be using the zip code supplied in a SharePoint li
 For this enrichment walk-through, begin by creating a custom SharePoint list with separate columns for address, city, state and zip code as a text column. I typically use Site Columns as it reduces the need to create a managed property later.  
 You will also create a column for each enrichment piece that you will be writing back to the SharePoint list. Add a column for longitude and a column for latitude as a number column.
 
-![](../assets/images/posts/enrich-your-sharepoint-list-data-using-microsoft-flow-and-apis/image.png)
+![](/assets/images/posts/enrich-your-sharepoint-list-data-using-microsoft-flow-and-apis/image.png)
 
 ## Test the API using Postman
 
@@ -63,7 +63,7 @@ Supply the address parameters along with:
 - hit the Send button. 
 
 
-![](../assets/images/posts/enrich-your-sharepoint-list-data-using-microsoft-flow-and-apis/image-2.png)
+![](/assets/images/posts/enrich-your-sharepoint-list-data-using-microsoft-flow-and-apis/image-2.png)
 
 
 
@@ -71,7 +71,7 @@ The response will return with a long amount of JSON formatted text. You will see
 
 
 
-![](../assets/images/posts/enrich-your-sharepoint-list-data-using-microsoft-flow-and-apis/image-3.png)
+![](/assets/images/posts/enrich-your-sharepoint-list-data-using-microsoft-flow-and-apis/image-3.png)
 
 
 #### It is important to point out that using Postman first will go a long way in debugging an enrichment flow. You have a response with real data and know that works!
@@ -85,7 +85,7 @@ Once you have your list columns in SharePoint, and an API call that returns the 
 
 
 
-![](../assets/images/posts/enrich-your-sharepoint-list-data-using-microsoft-flow-and-apis/image-1.png)
+![](/assets/images/posts/enrich-your-sharepoint-list-data-using-microsoft-flow-and-apis/image-1.png)
 
 
 
@@ -99,7 +99,7 @@ Add an "HTTP" connector to the Flow and paste in the uri string from Postman. We
 
 
 
-![](../assets/images/posts/enrich-your-sharepoint-list-data-using-microsoft-flow-and-apis/image-7.png)
+![](/assets/images/posts/enrich-your-sharepoint-list-data-using-microsoft-flow-and-apis/image-7.png)
 
 
 
@@ -114,14 +114,14 @@ Either way, you will need to select the entire output of the JSON call and paste
 
 
 
-![](../assets/images/posts/enrich-your-sharepoint-list-data-using-microsoft-flow-and-apis/image-8.png)Within a successful Flow run, you can see the results of each Flow connector step. Select the "body" that was returned from this flow run to add to the Parse JSON step.
+![](/assets/images/posts/enrich-your-sharepoint-list-data-using-microsoft-flow-and-apis/image-8.png)Within a successful Flow run, you can see the results of each Flow connector step. Select the "body" that was returned from this flow run to add to the Parse JSON step.
 
 
-![](../assets/images/posts/enrich-your-sharepoint-list-data-using-microsoft-flow-and-apis/image-10.png)
+![](/assets/images/posts/enrich-your-sharepoint-list-data-using-microsoft-flow-and-apis/image-10.png)
 
-![](../assets/images/posts/enrich-your-sharepoint-list-data-using-microsoft-flow-and-apis/image-9.png)
+![](/assets/images/posts/enrich-your-sharepoint-list-data-using-microsoft-flow-and-apis/image-9.png)
 
-![](../assets/images/posts/enrich-your-sharepoint-list-data-using-microsoft-flow-and-apis/image-11.png)Proper JSON Schema added to "Parse JSON"
+![](/assets/images/posts/enrich-your-sharepoint-list-data-using-microsoft-flow-and-apis/image-11.png)Proper JSON Schema added to "Parse JSON"
 
 
 
@@ -141,7 +141,7 @@ Add the "Update Item" connector to the Flow, and select the Site address, the  l
 
 
 
-![](../assets/images/posts/enrich-your-sharepoint-list-data-using-microsoft-flow-and-apis/image-13.png)
+![](/assets/images/posts/enrich-your-sharepoint-list-data-using-microsoft-flow-and-apis/image-13.png)
 
 
 
@@ -161,7 +161,7 @@ In this demonstration, we have started with a SharePoint list, added columns for
 
 
 
-![](../assets/images/posts/enrich-your-sharepoint-list-data-using-microsoft-flow-and-apis/image-14.png)
+![](/assets/images/posts/enrich-your-sharepoint-list-data-using-microsoft-flow-and-apis/image-14.png)
 
 
 ### Share this:

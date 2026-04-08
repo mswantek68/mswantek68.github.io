@@ -58,7 +58,7 @@ Select "Get Data" and choose "web"
 
 
 
-![](../assets/images/posts/add-enrichment-to-your-data-with-power-query-instead-of-an-http-connector/image.png)
+![](/assets/images/posts/add-enrichment-to-your-data-with-power-query-instead-of-an-http-connector/image.png)
 
 
 
@@ -66,7 +66,7 @@ Select "Get Data" and choose "web"
 
 
 
-![](../assets/images/posts/add-enrichment-to-your-data-with-power-query-instead-of-an-http-connector/image-1.png)
+![](/assets/images/posts/add-enrichment-to-your-data-with-power-query-instead-of-an-http-connector/image-1.png)
 
 
 
@@ -86,7 +86,7 @@ Since this is a public API, there are no credentials needed.
 
 
 
-![](../assets/images/posts/add-enrichment-to-your-data-with-power-query-instead-of-an-http-connector/image-2.png)
+![](/assets/images/posts/add-enrichment-to-your-data-with-power-query-instead-of-an-http-connector/image-2.png)
 
 
 
@@ -100,7 +100,7 @@ When Power Query brings in a web source, it creates a list of records which must
 
 
 
-![](../assets/images/posts/add-enrichment-to-your-data-with-power-query-instead-of-an-http-connector/image-3.png)
+![](/assets/images/posts/add-enrichment-to-your-data-with-power-query-instead-of-an-http-connector/image-3.png)
 
 
 
@@ -114,7 +114,7 @@ You will see an icon in the right corner of the new column. By clicking this, it
 
 
 
-![](../assets/images/posts/add-enrichment-to-your-data-with-power-query-instead-of-an-http-connector/image-4.png)
+![](/assets/images/posts/add-enrichment-to-your-data-with-power-query-instead-of-an-http-connector/image-4.png)
 
 
 
@@ -128,7 +128,7 @@ This is not necessary, but is a sound practice.
 
 
 
-![](../assets/images/posts/add-enrichment-to-your-data-with-power-query-instead-of-an-http-connector/image-6.png)
+![](/assets/images/posts/add-enrichment-to-your-data-with-power-query-instead-of-an-http-connector/image-6.png)
 
 
 
@@ -142,7 +142,7 @@ We are next going to add a static data set from a csv file. I am getting a list 
 
 
 
-![](../assets/images/posts/add-enrichment-to-your-data-with-power-query-instead-of-an-http-connector/image-7.png)
+![](/assets/images/posts/add-enrichment-to-your-data-with-power-query-instead-of-an-http-connector/image-7.png)
 
 
 
@@ -150,7 +150,7 @@ We are next going to add a static data set from a csv file. I am getting a list 
 
 
 
-![](../assets/images/posts/add-enrichment-to-your-data-with-power-query-instead-of-an-http-connector/image-9.png)
+![](/assets/images/posts/add-enrichment-to-your-data-with-power-query-instead-of-an-http-connector/image-9.png)
 
 
 
@@ -170,7 +170,7 @@ Within the data set I downloaded, there were three tabs of data. I only want the
 
 
 
-![](../assets/images/posts/add-enrichment-to-your-data-with-power-query-instead-of-an-http-connector/image-10.png)
+![](/assets/images/posts/add-enrichment-to-your-data-with-power-query-instead-of-an-http-connector/image-10.png)
 
 
 
@@ -184,7 +184,7 @@ This step is what will connect the key fields in both the table and the API that
 
 
 
-![](../assets/images/posts/add-enrichment-to-your-data-with-power-query-instead-of-an-http-connector/image-12.png)
+![](/assets/images/posts/add-enrichment-to-your-data-with-power-query-instead-of-an-http-connector/image-12.png)
 
 
 
@@ -204,7 +204,7 @@ Again, double click on the icon in the right corner of the row table. (in this c
 
 
 
-![](../assets/images/posts/add-enrichment-to-your-data-with-power-query-instead-of-an-http-connector/image-13.png)
+![](/assets/images/posts/add-enrichment-to-your-data-with-power-query-instead-of-an-http-connector/image-13.png)
 
 
 
@@ -218,7 +218,7 @@ Select the columns that you would like to expand into this merged data set.
 
 
 
-![](../assets/images/posts/add-enrichment-to-your-data-with-power-query-instead-of-an-http-connector/image-15.png)
+![](/assets/images/posts/add-enrichment-to-your-data-with-power-query-instead-of-an-http-connector/image-15.png)
 
 
 
@@ -226,7 +226,7 @@ Select the columns that you would like to expand into this merged data set.
 
 
 
-![](../assets/images/posts/add-enrichment-to-your-data-with-power-query-instead-of-an-http-connector/image-16.png)
+![](/assets/images/posts/add-enrichment-to-your-data-with-power-query-instead-of-an-http-connector/image-16.png)
 
 
 
@@ -240,7 +240,7 @@ Here I wanted to understand if more building permits were issued to those with a
 
 
 
-![](../assets/images/posts/add-enrichment-to-your-data-with-power-query-instead-of-an-http-connector/image-17.png)
+![](/assets/images/posts/add-enrichment-to-your-data-with-power-query-instead-of-an-http-connector/image-17.png)
 
 
 

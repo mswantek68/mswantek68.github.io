@@ -4,7 +4,7 @@ date: 2019-03-24 08:00:00 -0700
 categories: [events]
 ---
 
-![Mark Rackley and Mike Swantek](../assets/images/posts/north-american-collaboration-summit-2019-recap/north-american-collaboration-summit-2019-recap-mrackley.jpeg)
+![Mark Rackley and Mike Swantek](/assets/images/posts/north-american-collaboration-summit-2019-recap/north-american-collaboration-summit-2019-recap-mrackley.jpeg)
 
 ### aka "Confessions from an attendee of the North American Collaboration Summit 2019"
 
