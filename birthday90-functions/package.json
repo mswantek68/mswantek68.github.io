@@ -1,0 +1,19 @@
+{
+  "name": "birthday90-functions",
+  "version": "1.0.0",
+  "description": "Azure Functions for the birthday90 photo/video upload app",
+  "main": "src/functions/*.js",
+  "scripts": {
+    "start": "func start",
+    "test": "echo \"No tests configured\""
+  },
+  "dependencies": {
+    "@azure/functions": "^4.5.0",
+    "@azure/identity": "^4.5.0",
+    "@azure/storage-blob": "^12.25.0",
+    "busboy": "^1.6.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

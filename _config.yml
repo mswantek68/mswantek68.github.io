@@ -1,3 +1,6 @@
+exclude:
+  - birthday90-functions/
+
 title: Swan-Technical
 email: 
 description: >-
