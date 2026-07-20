@@ -333,7 +333,7 @@ function renderPreviews() {
     if (file.type.startsWith('video/')) {
       const vid = document.createElement('video');
       const vidUrl = URL.createObjectURL(file);
-      if (vidUrl.startsWith('blob:')) { vid.src = vidUrl; }
+      if (vidUrl.startsWith('blob:')) { vid.src = vidUrl; } else { console.warn('Unexpected URL scheme for video preview'); }
       vid.muted = true;
       vid.preload = 'metadata';
       item.appendChild(vid);
@@ -344,7 +344,7 @@ function renderPreviews() {
     } else {
       const img = document.createElement('img');
       const imgUrl = URL.createObjectURL(file);
-      if (imgUrl.startsWith('blob:')) { img.src = imgUrl; }
+      if (imgUrl.startsWith('blob:')) { img.src = imgUrl; } else { console.warn('Unexpected URL scheme for image preview'); }
       img.alt = file.name;
       item.appendChild(img);
     }

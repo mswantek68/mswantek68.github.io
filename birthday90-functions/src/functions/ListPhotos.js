@@ -39,6 +39,12 @@ app.http('ListPhotos', {
 
             const photos = [];
             for await (const blob of containerClient.listBlobsFlat({ includeMetadata: true })) {
+                // Skip any blob whose name looks like a path traversal attempt.
+                if (blob.name.includes('..') || blob.name.includes('\\')) {
+                    context.warn('Skipping suspicious blob name:', blob.name);
+                    continue;
+                }
+
                 let originalName = blob.name;
                 if (blob.metadata && blob.metadata.originalName) {
                     try {
