@@ -138,6 +138,42 @@ permalink: /birthday90/gallery/
   font-family: "Source Sans 3", "Segoe UI", sans-serif;
 }
 
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 22px;
+  font-family: "Source Sans 3", "Segoe UI", sans-serif;
+}
+
+.pagination button,
+.pagination select {
+  min-height: 38px;
+  padding: 7px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel);
+  color: var(--ink);
+  font: inherit;
+}
+
+.pagination button {
+  cursor: pointer;
+}
+
+.pagination button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.page-status {
+  min-width: 100px;
+  text-align: center;
+  color: var(--muted);
+}
+
 /* Lightbox */
 .lightbox {
   display: none;
@@ -262,6 +298,17 @@ permalink: /birthday90/gallery/
   <div id="galleryContent">
     <div class="loading-state">⏳ Loading photos…</div>
   </div>
+
+  <div class="pagination" id="pagination" hidden>
+    <button id="previousPage" type="button">Previous</button>
+    <span class="page-status" id="pageStatus"></span>
+    <button id="nextPage" type="button">Next</button>
+    <label for="pageSize">Show</label>
+    <select id="pageSize">
+      <option value="25" selected>25</option>
+      <option value="50">50</option>
+    </select>
+  </div>
 </div>
 
 <!-- Lightbox -->
@@ -288,6 +335,9 @@ function isSafePhotoUrl(url) {
 
 let photos = [];
 let lightboxIndex = 0;
+let currentPage = 1;
+let totalPages = 1;
+let pageSize = 25;
 
 async function loadPhotos() {
   const content = document.getElementById('galleryContent');
@@ -296,12 +346,17 @@ async function loadPhotos() {
   meta.textContent = '';
 
   try {
-    const res = await fetch(FUNCTION_BASE + '/api/photos');
+    const query = new URLSearchParams({ page: currentPage, pageSize });
+    const res = await fetch(FUNCTION_BASE + '/api/photos?' + query.toString());
     if (!res.ok) throw new Error('HTTP ' + res.status);
-    photos = await res.json();
+    const result = await res.json();
+    photos = result.items;
+    currentPage = result.page;
+    totalPages = result.totalPages;
 
-    if (photos.length === 0) {
+    if (result.total === 0) {
       meta.textContent = 'No photos yet — be the first to upload!';
+      document.getElementById('pagination').hidden = true;
       content.innerHTML =
         '<div class="empty-state">' +
           '<span class="empty-icon">📭</span>' +
@@ -315,7 +370,7 @@ async function loadPhotos() {
       month: 'long', day: 'numeric', year: 'numeric',
     });
     meta.textContent =
-      photos.length + ' moment' + (photos.length !== 1 ? 's' : '') +
+      result.total + ' moment' + (result.total !== 1 ? 's' : '') +
       ' shared · Latest: ' + newestDate;
 
     const grid = document.createElement('div');
@@ -342,7 +397,8 @@ async function loadPhotos() {
         item.appendChild(badge);
       } else {
         const img = document.createElement('img');
-        if (isSafePhotoUrl(photo.proxyUrl)) { img.src = photo.proxyUrl; }
+        const cardUrl = photo.thumbnailUrl || photo.proxyUrl;
+        if (isSafePhotoUrl(cardUrl)) { img.src = cardUrl; }
         img.alt = photo.originalName || photo.name;
         img.loading = 'lazy';
         item.appendChild(img);
@@ -358,6 +414,7 @@ async function loadPhotos() {
 
     content.innerHTML = '';
     content.appendChild(grid);
+    renderPagination();
   } catch (err) {
     meta.textContent = '';
     content.innerHTML =
@@ -367,6 +424,15 @@ async function loadPhotos() {
         '<p style="font-size:0.8rem;color:var(--muted)">' + err.message + '</p>' +
       '</div>';
   }
+}
+
+function renderPagination() {
+  const pagination = document.getElementById('pagination');
+  pagination.hidden = false;
+  document.getElementById('pageStatus').textContent =
+    'Page ' + currentPage + ' of ' + totalPages;
+  document.getElementById('previousPage').disabled = currentPage <= 1;
+  document.getElementById('nextPage').disabled = currentPage >= totalPages;
 }
 
 function openLightbox(index) {
@@ -427,6 +493,23 @@ document.getElementById('lightbox').addEventListener('click', function(e) {
   if (e.target === document.getElementById('lightbox')) closeLightbox();
 });
 document.getElementById('refreshBtn').addEventListener('click', loadPhotos);
+document.getElementById('previousPage').addEventListener('click', function() {
+  if (currentPage > 1) {
+    currentPage--;
+    loadPhotos();
+  }
+});
+document.getElementById('nextPage').addEventListener('click', function() {
+  if (currentPage < totalPages) {
+    currentPage++;
+    loadPhotos();
+  }
+});
+document.getElementById('pageSize').addEventListener('change', function(e) {
+  pageSize = Number.parseInt(e.target.value, 10);
+  currentPage = 1;
+  loadPhotos();
+});
 
 document.addEventListener('keydown', function(e) {
   if (!document.getElementById('lightbox').classList.contains('open')) return;
