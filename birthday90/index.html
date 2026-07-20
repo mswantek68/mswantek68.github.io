@@ -284,7 +284,7 @@ permalink: /birthday90/
 
   <button class="upload-btn" id="uploadBtn" disabled>Upload to the Party! 🎉</button>
 
-  <a class="gallery-link" href="/birthday90/gallery">📷 View all party photos →</a>
+  <a class="gallery-link" href="/birthday90/gallery/">📷 View all party photos →</a>
 </div>
 
 <script>
@@ -332,7 +332,8 @@ function renderPreviews() {
 
     if (file.type.startsWith('video/')) {
       const vid = document.createElement('video');
-      vid.src = URL.createObjectURL(file);
+      const vidUrl = URL.createObjectURL(file);
+      if (vidUrl.startsWith('blob:')) { vid.src = vidUrl; } else { console.warn('Unexpected URL scheme for video preview'); }
       vid.muted = true;
       vid.preload = 'metadata';
       item.appendChild(vid);
@@ -342,7 +343,8 @@ function renderPreviews() {
       item.appendChild(badge);
     } else {
       const img = document.createElement('img');
-      img.src = URL.createObjectURL(file);
+      const imgUrl = URL.createObjectURL(file);
+      if (imgUrl.startsWith('blob:')) { img.src = imgUrl; } else { console.warn('Unexpected URL scheme for image preview'); }
       img.alt = file.name;
       item.appendChild(img);
     }

@@ -44,8 +44,7 @@ az functionapp config appsettings set `
   --resource-group rg-birthday90 `
   --settings `
     STORAGE_ACCOUNT_NAME=birthday90photos `
-    CONTAINER_NAME=uploads `
-    FUNCTION_BASE_URL=https://birthday90-api.azurewebsites.net
+    CONTAINER_NAME=uploads
 ```
 
 ### 4. Configure CORS
@@ -66,7 +65,8 @@ az storage container create `
   --auth-mode login
 ```
 
-## Deploy
+> **Note:** `ListPhotos` generates time-limited user-delegation SAS tokens so browsers load photos directly from Azure Blob Storage, avoiding any private-network restrictions on the Function App.
+
 
 ```powershell
 cd birthday90-functions

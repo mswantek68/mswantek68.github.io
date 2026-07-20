@@ -1,10 +1,13 @@
 const { app } = require('@azure/functions');
-const { BlobServiceClient } = require('@azure/storage-blob');
+const { BlobServiceClient, BlobSASPermissions, generateBlobSASQueryParameters } = require('@azure/storage-blob');
 const { DefaultAzureCredential } = require('@azure/identity');
 
-const STORAGE_ACCOUNT  = process.env.STORAGE_ACCOUNT_NAME || 'birthday90photos';
-const CONTAINER_NAME   = process.env.CONTAINER_NAME        || 'uploads';
-const FUNCTION_BASE_URL = process.env.FUNCTION_BASE_URL   || 'https://birthday90-api.azurewebsites.net';
+const STORAGE_ACCOUNT = process.env.STORAGE_ACCOUNT_NAME || 'birthday90photos';
+const CONTAINER_NAME  = process.env.CONTAINER_NAME        || 'uploads';
+
+// SAS tokens are valid for 24 hours so browsers can load photos directly
+// from Azure Blob Storage without going through the Function App proxy.
+const SAS_TTL_MS = 24 * 60 * 60 * 1000;
 
 const CORS_HEADERS = {
     'Access-Control-Allow-Origin':  'https://mikeswantek.com',
@@ -29,8 +32,19 @@ app.http('ListPhotos', {
             );
             const containerClient = blobServiceClient.getContainerClient(CONTAINER_NAME);
 
+            // Obtain a user-delegation key once for all SAS tokens in this request.
+            const now     = new Date();
+            const expires = new Date(now.getTime() + SAS_TTL_MS);
+            const userDelegationKey = await blobServiceClient.getUserDelegationKey(now, expires);
+
             const photos = [];
             for await (const blob of containerClient.listBlobsFlat({ includeMetadata: true })) {
+                // Skip any blob whose name looks like a path traversal attempt.
+                if (blob.name.includes('..') || blob.name.includes('\\')) {
+                    context.warn('Skipping suspicious blob name:', blob.name);
+                    continue;
+                }
+
                 let originalName = blob.name;
                 if (blob.metadata && blob.metadata.originalName) {
                     try {
@@ -40,9 +54,27 @@ app.http('ListPhotos', {
                     }
                 }
 
+                // Generate a read-only SAS token so browsers can fetch the blob directly,
+                // bypassing the Function App proxy (which may be on a private network).
+                const sasQuery = generateBlobSASQueryParameters(
+                    {
+                        containerName: CONTAINER_NAME,
+                        blobName:      blob.name,
+                        permissions:   BlobSASPermissions.parse('r'),
+                        startsOn:      now,
+                        expiresOn:     expires,
+                    },
+                    userDelegationKey,
+                    STORAGE_ACCOUNT
+                ).toString();
+
+                const proxyUrl =
+                    `https://${STORAGE_ACCOUNT}.blob.core.windows.net` +
+                    `/${CONTAINER_NAME}/${encodeURIComponent(blob.name)}?${sasQuery}`;
+
                 photos.push({
                     name:         blob.name,
-                    proxyUrl:     `${FUNCTION_BASE_URL}/api/photo/${encodeURIComponent(blob.name)}`,
+                    proxyUrl,
                     contentType:  blob.properties.contentType || 'application/octet-stream',
                     size:         blob.properties.contentLength,
                     lastModified: blob.properties.lastModified,

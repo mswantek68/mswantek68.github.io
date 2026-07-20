@@ -248,7 +248,7 @@ permalink: /birthday90/gallery/
 }
 </style>
 
-<a class="back-link" href="/birthday90">← Upload photos</a>
+<a class="back-link" href="/birthday90/">← Upload photos</a>
 
 <div class="gallery-card">
   <h1 class="gallery-heading">🎂 Party Photos</h1>
@@ -256,7 +256,7 @@ permalink: /birthday90/gallery/
 
   <div class="gallery-actions">
     <button class="refresh-btn" id="refreshBtn">🔄 Refresh</button>
-    <a class="back-link" href="/birthday90">+ Add your photos</a>
+    <a class="back-link" href="/birthday90/">+ Add your photos</a>
   </div>
 
   <div id="galleryContent">
@@ -274,6 +274,17 @@ permalink: /birthday90/gallery/
 
 <script>
 const FUNCTION_BASE = 'https://birthday90-api.azurewebsites.net';
+
+// Validate that a photo URL comes from Azure Blob Storage to guard against
+// a compromised backend response redirecting browsers to an unexpected origin.
+function isSafePhotoUrl(url) {
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === 'https:' && parsed.hostname.endsWith('.blob.core.windows.net');
+  } catch {
+    return false;
+  }
+}
 
 let photos = [];
 let lightboxIndex = 0;
@@ -295,7 +306,7 @@ async function loadPhotos() {
         '<div class="empty-state">' +
           '<span class="empty-icon">📭</span>' +
           '<p>No photos uploaded yet.</p>' +
-          '<a href="/birthday90" style="color:var(--accent);font-weight:600;font-family:\'Source Sans 3\',sans-serif;">Be the first to share a moment!</a>' +
+          '<a href="/birthday90/" style="color:var(--accent);font-weight:600;font-family:\'Source Sans 3\',sans-serif;">Be the first to share a moment!</a>' +
         '</div>';
       return;
     }
@@ -321,7 +332,7 @@ async function loadPhotos() {
 
       if (isVideo) {
         const vid = document.createElement('video');
-        vid.src = photo.proxyUrl;
+        if (isSafePhotoUrl(photo.proxyUrl)) { vid.src = photo.proxyUrl; }
         vid.muted = true;
         vid.preload = 'metadata';
         item.appendChild(vid);
@@ -331,7 +342,7 @@ async function loadPhotos() {
         item.appendChild(badge);
       } else {
         const img = document.createElement('img');
-        img.src = photo.proxyUrl;
+        if (isSafePhotoUrl(photo.proxyUrl)) { img.src = photo.proxyUrl; }
         img.alt = photo.originalName || photo.name;
         img.loading = 'lazy';
         item.appendChild(img);
@@ -380,14 +391,14 @@ function renderLightbox() {
 
   if (isVideo) {
     const vid = document.createElement('video');
-    vid.src = photo.proxyUrl;
+    if (isSafePhotoUrl(photo.proxyUrl)) { vid.src = photo.proxyUrl; }
     vid.controls = true;
     vid.autoplay = true;
     vid.style.maxHeight = '80vh';
     inner.appendChild(vid);
   } else {
     const img = document.createElement('img');
-    img.src = photo.proxyUrl;
+    if (isSafePhotoUrl(photo.proxyUrl)) { img.src = photo.proxyUrl; }
     img.alt = photo.originalName || photo.name;
     inner.appendChild(img);
   }
