@@ -4,7 +4,6 @@
     "AzureWebJobsStorage": "UseDevelopmentStorage=true",
     "FUNCTIONS_WORKER_RUNTIME": "node",
     "STORAGE_ACCOUNT_NAME": "birthday90photos",
-    "CONTAINER_NAME": "uploads",
-    "FUNCTION_BASE_URL": "https://birthday90-api.azurewebsites.net"
+    "CONTAINER_NAME": "uploads"
   }
 }

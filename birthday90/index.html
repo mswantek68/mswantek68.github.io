@@ -332,7 +332,8 @@ function renderPreviews() {
 
     if (file.type.startsWith('video/')) {
       const vid = document.createElement('video');
-      vid.src = URL.createObjectURL(file);
+      const vidUrl = URL.createObjectURL(file);
+      if (vidUrl.startsWith('blob:')) { vid.src = vidUrl; }
       vid.muted = true;
       vid.preload = 'metadata';
       item.appendChild(vid);
@@ -342,7 +343,8 @@ function renderPreviews() {
       item.appendChild(badge);
     } else {
       const img = document.createElement('img');
-      img.src = URL.createObjectURL(file);
+      const imgUrl = URL.createObjectURL(file);
+      if (imgUrl.startsWith('blob:')) { img.src = imgUrl; }
       img.alt = file.name;
       item.appendChild(img);
     }
