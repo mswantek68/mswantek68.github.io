@@ -1,6 +1,7 @@
 const { app } = require('@azure/functions');
 const { BlobServiceClient } = require('@azure/storage-blob');
 const { DefaultAzureCredential } = require('@azure/identity');
+const { paginatePhotos } = require('../gallery');
 
 const STORAGE_ACCOUNT = process.env.STORAGE_ACCOUNT_NAME || 'birthday90photos';
 const BLOB_CONTAINER_NAME = process.env.BLOB_CONTAINER_NAME || 'uploads';
@@ -37,11 +38,13 @@ app.http('ListPhotos', {
                 }
 
                 let originalName = blob.name;
-                if (blob.metadata && blob.metadata.originalName) {
+                const encodedOriginalName = blob.metadata &&
+                    (blob.metadata.originalname || blob.metadata.originalName);
+                if (encodedOriginalName) {
                     try {
-                        originalName = Buffer.from(blob.metadata.originalName, 'base64').toString('utf8');
+                        originalName = Buffer.from(encodedOriginalName, 'base64').toString('utf8');
                     } catch {
-                        originalName = blob.metadata.originalName;
+                        originalName = encodedOriginalName;
                     }
                 }
 
@@ -49,10 +52,16 @@ app.http('ListPhotos', {
                     `/api/photo/${encodeURIComponent(blob.name)}`,
                     request.url
                 ).toString();
+                const thumbnailName = blob.metadata &&
+                    (blob.metadata.thumbnailname || blob.metadata.thumbnailName);
+                const thumbnailUrl = thumbnailName
+                    ? new URL(`/api/thumbnail/${encodeURIComponent(thumbnailName)}`, request.url).toString()
+                    : null;
 
                 photos.push({
                     name:         blob.name,
                     proxyUrl,
+                    thumbnailUrl,
                     contentType:  blob.properties.contentType || 'application/octet-stream',
                     size:         blob.properties.contentLength,
                     lastModified: blob.properties.lastModified,
@@ -61,11 +70,23 @@ app.http('ListPhotos', {
             }
 
             photos.sort((a, b) => new Date(b.lastModified) - new Date(a.lastModified));
+            if (!request.query.has('page') && !request.query.has('pageSize')) {
+                return {
+                    status: 200,
+                    headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
+                    body: JSON.stringify(photos),
+                };
+            }
+            const result = paginatePhotos(
+                photos,
+                request.query.get('page'),
+                request.query.get('pageSize')
+            );
 
             return {
                 status: 200,
                 headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
-                body: JSON.stringify(photos),
+                body: JSON.stringify(result),
             };
         } catch (err) {
             context.error('ListPhotos error:', err);

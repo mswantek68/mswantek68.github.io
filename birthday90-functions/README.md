@@ -1,4 +1,11 @@
-# birthday90-functions
+---
+title: Birthday90 Functions
+description: Azure Functions API for private birthday photo and video uploads
+ms.date: 2026-07-20
+ms.topic: reference
+---
+
+## Overview
 
 Azure Functions for the birthday90 photo/video upload app on mikeswantek.com.
 
@@ -9,6 +16,9 @@ Azure Functions for the birthday90 photo/video upload app on mikeswantek.com.
 | `UploadPhoto` | `/api/upload` | POST | Receives multipart file upload, stores to Azure Blob Storage |
 | `ListPhotos` | `/api/photos` | GET | Lists all uploaded photos/videos as JSON |
 | `GetPhoto` | `/api/photo/{blobName}` | GET | Proxies a photo/video from Blob Storage to the browser |
+| `AuthorizeUpload` | `/api/authorize` | POST | Exchanges the shared party code for a signed upload token |
+| `UploadStatus` | `/api/upload-status` | GET | Reports whether the configured upload window is open |
+| `GetThumbnail` | `/api/thumbnail/{blobName}` | GET | Proxies a private WebP thumbnail to the browser |
 
 ## Pre-deployment checklist
 
@@ -42,8 +52,18 @@ az functionapp config appsettings set `
   --resource-group rg-birthday90 `
   --settings `
     STORAGE_ACCOUNT_NAME=birthday90photos `
-    BLOB_CONTAINER_NAME=uploads
+    BLOB_CONTAINER_NAME=uploads `
+    THUMBNAIL_CONTAINER_NAME=thumbnails `
+    UPLOADS_OPEN_AT=2026-07-25T16:00:00Z `
+    UPLOADS_CLOSE_AT=2026-08-09T03:59:00Z `
+    UPLOAD_TOKEN_TTL_SECONDS=43200 `
+    MAX_IMAGE_BYTES=20971520 `
+    MAX_VIDEO_BYTES=78643200
 ```
+
+  Configure `PARTY_CODE_HASH` and `UPLOAD_TOKEN_SECRET` separately. Do not commit either
+  value. `PARTY_CODE_HASH` is the lowercase SHA-256 digest of the shared party code, and
+  `UPLOAD_TOKEN_SECRET` must contain at least 32 random bytes.
 
 ### 4. Configure CORS
 
@@ -63,7 +83,7 @@ az storage container create `
   --auth-mode login
 ```
 
-> **Note:** `ListPhotos` returns Function App proxy URLs. The browser requests media through `GetPhoto`, and the Function App reads blobs from private storage using its managed identity and virtual network integration.
+> **Note:** `ListPhotos` returns Function App proxy URLs. Gallery cards use private WebP thumbnails when available. The lightbox requests original media through `GetPhoto`, and the Function App reads both containers using its managed identity and virtual network integration.
 
 
 ```powershell

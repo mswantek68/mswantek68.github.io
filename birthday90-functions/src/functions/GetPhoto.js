@@ -1,6 +1,7 @@
 const { app } = require('@azure/functions');
 const { BlobServiceClient } = require('@azure/storage-blob');
 const { DefaultAzureCredential } = require('@azure/identity');
+const { parseByteRange } = require('../httpRange');
 
 const STORAGE_ACCOUNT = process.env.STORAGE_ACCOUNT_NAME || 'birthday90photos';
 const BLOB_CONTAINER_NAME = process.env.BLOB_CONTAINER_NAME || 'uploads';
@@ -28,24 +29,40 @@ app.http('GetPhoto', {
             );
             const containerClient = blobServiceClient.getContainerClient(BLOB_CONTAINER_NAME);
             const blobClient      = containerClient.getBlockBlobClient(blobName);
+            const properties = await blobClient.getProperties();
+            const contentLength = properties.contentLength;
+            const rangeHeader = request.headers.get('range');
+            const range = parseByteRange(rangeHeader, contentLength);
 
-            const downloadResponse = await blobClient.download(0);
-            const contentType = downloadResponse.contentType || 'application/octet-stream';
-
-            const chunks = [];
-            for await (const chunk of downloadResponse.readableStreamBody) {
-                chunks.push(typeof chunk === 'string' ? Buffer.from(chunk) : chunk);
+            if (rangeHeader && !range) {
+                return {
+                    status: 416,
+                    headers: {
+                        'Content-Range': `bytes */${contentLength}`,
+                        'Access-Control-Allow-Origin': '*',
+                    },
+                };
             }
-            const buffer = Buffer.concat(chunks);
+
+            const downloadResponse = range
+                ? await blobClient.download(range.start, range.length)
+                : await blobClient.download(0);
+            const contentType = properties.contentType || 'application/octet-stream';
+            const headers = {
+                'Content-Type': contentType,
+                'Content-Length': String(range ? range.length : contentLength),
+                'Cache-Control': 'public, max-age=86400',
+                'Accept-Ranges': 'bytes',
+                'Access-Control-Allow-Origin': '*',
+            };
+            if (range) {
+                headers['Content-Range'] = `bytes ${range.start}-${range.end}/${contentLength}`;
+            }
 
             return {
-                status: 200,
-                headers: {
-                    'Content-Type':                contentType,
-                    'Cache-Control':               'public, max-age=86400',
-                    'Access-Control-Allow-Origin': '*',
-                },
-                body: buffer,
+                status: range ? 206 : 200,
+                headers,
+                body: downloadResponse.readableStreamBody,
             };
         } catch (err) {
             if (err.statusCode === 404) {

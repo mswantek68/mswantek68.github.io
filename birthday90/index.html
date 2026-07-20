@@ -32,6 +32,50 @@ permalink: /birthday90/
   font-family: "Source Sans 3", "Segoe UI", sans-serif;
 }
 
+.access-panel {
+  max-width: 420px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.access-label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--ink);
+  font-family: "Source Sans 3", "Segoe UI", sans-serif;
+  font-weight: 600;
+}
+
+.access-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+}
+
+.access-input {
+  min-width: 0;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--panel);
+  color: var(--ink);
+  font: inherit;
+}
+
+.access-btn {
+  padding: 12px 18px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--accent);
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+[hidden] {
+  display: none !important;
+}
+
 .upload-zone {
   border: 2px dashed var(--border);
   border-radius: 18px;
@@ -271,32 +315,114 @@ permalink: /birthday90/
   <h1 class="birthday-heading">🎉 Happy 90th Birthday Dad! 🎂</h1>
   <p class="birthday-sub">Share your photos &amp; videos to celebrate this special day</p>
 
-  <div class="upload-zone" id="uploadZone">
-    <input type="file" id="fileInput" accept="image/*,video/*" multiple>
-    <span class="upload-icon">📸</span>
-    <span class="upload-zone-label">Tap to select photos &amp; videos</span>
-    <span class="upload-zone-hint">Photos and videos welcome · Select multiple at once</span>
+  <div class="access-panel" id="accessPanel">
+    <label class="access-label" for="partyCode">Enter the party code to share photos</label>
+    <div class="access-row">
+      <input class="access-input" id="partyCode" type="password" autocomplete="one-time-code">
+      <button class="access-btn" id="authorizeBtn" type="button">Continue</button>
+    </div>
+    <div class="status-message" id="accessStatus"></div>
   </div>
 
-  <div class="preview-grid" id="previewGrid"></div>
+  <div id="uploader" hidden>
+    <div class="upload-zone" id="uploadZone">
+      <input type="file" id="fileInput" accept="image/*,video/*" multiple>
+      <span class="upload-icon">📸</span>
+      <span class="upload-zone-label">Tap to select photos &amp; videos</span>
+      <span class="upload-zone-hint">Photos up to 20 MB · Videos up to 75 MB</span>
+    </div>
 
-  <div class="status-message" id="statusMessage"></div>
+    <div class="preview-grid" id="previewGrid"></div>
 
-  <button class="upload-btn" id="uploadBtn" disabled>Upload to the Party! 🎉</button>
+    <div class="status-message" id="statusMessage"></div>
+
+    <button class="upload-btn" id="uploadBtn" disabled>Upload to the Party! 🎉</button>
+  </div>
 
   <a class="gallery-link" href="/birthday90/gallery/">📷 View all party photos →</a>
 </div>
 
 <script>
 const FUNCTION_BASE = 'https://birthday90-api.azurewebsites.net';
+const UPLOAD_TOKEN_KEY = 'birthday90UploadToken';
+const UPLOAD_TOKEN_EXPIRY_KEY = 'birthday90UploadTokenExpiresAt';
+const MAX_IMAGE_BYTES = 20 * 1024 * 1024;
+const MAX_VIDEO_BYTES = 75 * 1024 * 1024;
 
 const fileInput  = document.getElementById('fileInput');
 const previewGrid = document.getElementById('previewGrid');
 const uploadBtn  = document.getElementById('uploadBtn');
 const statusMsg  = document.getElementById('statusMessage');
 const uploadZone = document.getElementById('uploadZone');
+const accessPanel = document.getElementById('accessPanel');
+const accessStatus = document.getElementById('accessStatus');
+const authorizeBtn = document.getElementById('authorizeBtn');
+const partyCode = document.getElementById('partyCode');
+const uploader = document.getElementById('uploader');
 
 let selectedFiles = [];
+
+authorizeBtn.addEventListener('click', authorizeUpload);
+partyCode.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') authorizeUpload();
+});
+
+async function initializeUploadAccess() {
+  try {
+    const response = await fetch(FUNCTION_BASE + '/api/upload-status');
+    if (!response.ok) throw new Error('Upload status is unavailable');
+    const status = await response.json();
+    if (!status.uploadsOpen) {
+      const message = status.reason === 'not_open'
+        ? 'Uploads open July 25 at noon Eastern.'
+        : 'Uploads for this celebration are now closed.';
+      showElementStatus(accessStatus, message, 'error');
+      partyCode.disabled = true;
+      authorizeBtn.disabled = true;
+      return;
+    }
+
+    const expiresAt = Date.parse(sessionStorage.getItem(UPLOAD_TOKEN_EXPIRY_KEY) || '');
+    if (sessionStorage.getItem(UPLOAD_TOKEN_KEY) && expiresAt > Date.now()) {
+      showUploader();
+    }
+  } catch {
+    showElementStatus(accessStatus, 'Could not check upload availability. Please refresh.', 'error');
+  }
+}
+
+async function authorizeUpload() {
+  const code = partyCode.value;
+  if (!code) {
+    showElementStatus(accessStatus, 'Enter the party code.', 'error');
+    return;
+  }
+
+  authorizeBtn.disabled = true;
+  try {
+    const response = await fetch(FUNCTION_BASE + '/api/authorize', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code }),
+    });
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(result.error || 'Could not authorize uploads');
+
+    sessionStorage.setItem(UPLOAD_TOKEN_KEY, result.token);
+    sessionStorage.setItem(UPLOAD_TOKEN_EXPIRY_KEY, result.expiresAt);
+    partyCode.value = '';
+    showUploader();
+  } catch (error) {
+    showElementStatus(accessStatus, error.message, 'error');
+  } finally {
+    authorizeBtn.disabled = false;
+  }
+}
+
+function showUploader() {
+  accessPanel.hidden = true;
+  uploader.hidden = false;
+}
 
 fileInput.addEventListener('change', handleNewFiles);
 
@@ -317,10 +443,19 @@ function handleNewFiles(e) {
 }
 
 function addFiles(newFiles) {
-  selectedFiles = [...selectedFiles, ...newFiles];
+  const acceptedFiles = newFiles.filter(function(file) {
+    const maxBytes = file.type.startsWith('video/') ? MAX_VIDEO_BYTES : MAX_IMAGE_BYTES;
+    return file.size <= maxBytes;
+  });
+  const rejectedCount = newFiles.length - acceptedFiles.length;
+  selectedFiles = [...selectedFiles, ...acceptedFiles];
   renderPreviews();
   uploadBtn.disabled = selectedFiles.length === 0;
-  hideStatus();
+  if (rejectedCount > 0) {
+    showStatus(rejectedCount + ' file(s) exceeded the size limit and were skipped.', 'error');
+  } else {
+    hideStatus();
+  }
 }
 
 function renderPreviews() {
@@ -372,6 +507,8 @@ uploadBtn.addEventListener('click', async () => {
 
   let successCount = 0;
   let errorCount = 0;
+  let tokenExpired = false;
+  const failedFiles = [];
 
   for (let i = 0; i < selectedFiles.length; i++) {
     const file = selectedFiles[i];
@@ -388,14 +525,24 @@ uploadBtn.addEventListener('click', async () => {
     try {
       const formData = new FormData();
       formData.append('file', file, file.name);
+      const thumbnail = await createThumbnail(file);
+      if (thumbnail) {
+        formData.append('thumbnail', thumbnail, file.name + '.webp');
+      }
 
       const res = await fetch(FUNCTION_BASE + '/api/upload', {
         method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + sessionStorage.getItem(UPLOAD_TOKEN_KEY) },
         body: formData,
       });
 
       if (!res.ok) {
         const text = await res.text().catch(() => '');
+        if (res.status === 401) {
+          sessionStorage.removeItem(UPLOAD_TOKEN_KEY);
+          sessionStorage.removeItem(UPLOAD_TOKEN_EXPIRY_KEY);
+          tokenExpired = true;
+        }
         throw new Error('HTTP ' + res.status + (text ? ': ' + text : ''));
       }
 
@@ -414,7 +561,23 @@ uploadBtn.addEventListener('click', async () => {
       errEl.textContent = '✗';
       item.appendChild(errEl);
       errorCount++;
+      failedFiles.push(file);
+      if (tokenExpired) {
+        failedFiles.push(...selectedFiles.slice(i + 1));
+        break;
+      }
     }
+  }
+
+  if (tokenExpired) {
+    selectedFiles = failedFiles;
+    renderPreviews();
+    uploader.hidden = true;
+    accessPanel.hidden = false;
+    showElementStatus(accessStatus, 'Your upload session expired. Enter the party code again.', 'error');
+    uploadBtn.textContent = 'Upload to the Party! 🎉';
+    uploadBtn.disabled = selectedFiles.length === 0;
+    return;
   }
 
   if (errorCount === 0) {
@@ -428,6 +591,8 @@ uploadBtn.addEventListener('click', async () => {
     uploadBtn.textContent = 'Upload More! 🎉';
     uploadBtn.disabled = true;
   } else if (successCount > 0) {
+    selectedFiles = failedFiles;
+    renderPreviews();
     showStatus(
       'Uploaded ' + successCount + ' file' + (successCount !== 1 ? 's' : '') +
       '. ' + errorCount + ' failed — you can try again.',
@@ -436,11 +601,34 @@ uploadBtn.addEventListener('click', async () => {
     uploadBtn.textContent = 'Upload to the Party! 🎉';
     uploadBtn.disabled = false;
   } else {
+    selectedFiles = failedFiles;
+    renderPreviews();
     showStatus('Upload failed. Please check your connection and try again.', 'error');
     uploadBtn.textContent = 'Upload to the Party! 🎉';
     uploadBtn.disabled = false;
   }
 });
+
+async function createThumbnail(file) {
+  if (!file.type.startsWith('image/')) return null;
+
+  try {
+    const bitmap = await createImageBitmap(file);
+    const scale = Math.min(1, 480 / Math.max(bitmap.width, bitmap.height));
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.max(1, Math.round(bitmap.width * scale));
+    canvas.height = Math.max(1, Math.round(bitmap.height * scale));
+    const context = canvas.getContext('2d');
+    context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+    bitmap.close();
+    return await new Promise(function(resolve) {
+      canvas.toBlob(resolve, 'image/webp', 0.82);
+    });
+  } catch (error) {
+    console.warn('Thumbnail generation skipped for ' + file.name, error);
+    return null;
+  }
+}
 
 function showStatus(msg, type) {
   statusMsg.textContent = msg;
@@ -451,4 +639,11 @@ function hideStatus() {
   statusMsg.className = 'status-message';
   statusMsg.textContent = '';
 }
+
+function showElementStatus(element, message, type) {
+  element.textContent = message;
+  element.className = 'status-message ' + type;
+}
+
+initializeUploadAccess();
 </script>
