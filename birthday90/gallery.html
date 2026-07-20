@@ -1,0 +1,428 @@
+---
+layout: default
+title: "Birthday Party Photos 📸"
+description: "All photos and videos from Dad's 90th Birthday celebration"
+permalink: /birthday90/gallery/
+---
+
+<style>
+.gallery-card {
+  background: var(--panel);
+  border-radius: 24px;
+  padding: 36px;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+}
+
+.gallery-heading {
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: clamp(1.8rem, 5vw, 2.6rem);
+  margin: 0 0 8px;
+  text-align: center;
+}
+
+.gallery-meta {
+  text-align: center;
+  color: var(--muted);
+  font-family: "Source Sans 3", "Segoe UI", sans-serif;
+  margin: 0 0 24px;
+  font-size: 0.95rem;
+  min-height: 1.4em;
+}
+
+.gallery-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.back-link {
+  font-family: "Source Sans 3", "Segoe UI", sans-serif;
+  font-weight: 600;
+  color: var(--accent);
+  text-decoration: none;
+  font-size: 0.95rem;
+}
+
+.back-link:hover {
+  text-decoration: underline;
+}
+
+.refresh-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  border: 1px solid rgba(45, 106, 109, 0.2);
+  border-radius: 999px;
+  font-family: "Source Sans 3", "Segoe UI", sans-serif;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.refresh-btn:hover {
+  opacity: 0.8;
+}
+
+.photo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.photo-item {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 14px;
+  overflow: hidden;
+  background: var(--accent-soft);
+  cursor: pointer;
+}
+
+.photo-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.25s ease;
+}
+
+.photo-item:hover img {
+  transform: scale(1.05);
+}
+
+.photo-item video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.video-badge {
+  position: absolute;
+  bottom: 6px;
+  left: 6px;
+  background: rgba(0, 0, 0, 0.62);
+  color: white;
+  font-size: 0.68rem;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-family: "Source Sans 3", "Segoe UI", sans-serif;
+  pointer-events: none;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--muted);
+  font-family: "Source Sans 3", "Segoe UI", sans-serif;
+}
+
+.empty-state .empty-icon {
+  font-size: 3rem;
+  display: block;
+  margin-bottom: 14px;
+}
+
+.loading-state {
+  text-align: center;
+  padding: 40px;
+  color: var(--muted);
+  font-family: "Source Sans 3", "Segoe UI", sans-serif;
+}
+
+/* Lightbox */
+.lightbox {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.93);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.lightbox.open {
+  display: flex;
+}
+
+.lightbox-inner {
+  position: relative;
+  max-width: min(92vw, 960px);
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.lightbox-inner img,
+.lightbox-inner video {
+  max-width: 100%;
+  max-height: 82vh;
+  border-radius: 12px;
+  display: block;
+  object-fit: contain;
+}
+
+.lightbox-close {
+  position: fixed;
+  top: 14px;
+  right: 18px;
+  color: white;
+  font-size: 2.2rem;
+  cursor: pointer;
+  background: none;
+  border: none;
+  line-height: 1;
+  padding: 8px;
+  z-index: 1001;
+  opacity: 0.85;
+}
+
+.lightbox-close:hover {
+  opacity: 1;
+}
+
+.lightbox-nav {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  font-size: 1.4rem;
+  cursor: pointer;
+  z-index: 1001;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.lightbox-nav:hover {
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.lightbox-prev {
+  left: 10px;
+}
+
+.lightbox-next {
+  right: 10px;
+}
+
+.lightbox-caption {
+  color: rgba(255, 255, 255, 0.65);
+  text-align: center;
+  margin-top: 10px;
+  font-size: 0.82rem;
+  font-family: "Source Sans 3", "Segoe UI", sans-serif;
+}
+
+@media (max-width: 480px) {
+  .gallery-card {
+    padding: 20px 14px;
+  }
+
+  .photo-grid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 8px;
+  }
+
+  .lightbox-nav {
+    width: 38px;
+    height: 38px;
+    font-size: 1.1rem;
+  }
+}
+</style>
+
+<a class="back-link" href="/birthday90">← Upload photos</a>
+
+<div class="gallery-card">
+  <h1 class="gallery-heading">🎂 Party Photos</h1>
+  <p class="gallery-meta" id="galleryMeta"></p>
+
+  <div class="gallery-actions">
+    <button class="refresh-btn" id="refreshBtn">🔄 Refresh</button>
+    <a class="back-link" href="/birthday90">+ Add your photos</a>
+  </div>
+
+  <div id="galleryContent">
+    <div class="loading-state">⏳ Loading photos…</div>
+  </div>
+</div>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true">
+  <button class="lightbox-close" id="lightboxClose" aria-label="Close">✕</button>
+  <button class="lightbox-nav lightbox-prev" id="lightboxPrev" aria-label="Previous">‹</button>
+  <div class="lightbox-inner" id="lightboxInner"></div>
+  <button class="lightbox-nav lightbox-next" id="lightboxNext" aria-label="Next">›</button>
+</div>
+
+<script>
+const FUNCTION_BASE = 'https://birthday90-api.azurewebsites.net';
+
+let photos = [];
+let lightboxIndex = 0;
+
+async function loadPhotos() {
+  const content = document.getElementById('galleryContent');
+  const meta = document.getElementById('galleryMeta');
+  content.innerHTML = '<div class="loading-state">⏳ Loading photos…</div>';
+  meta.textContent = '';
+
+  try {
+    const res = await fetch(FUNCTION_BASE + '/api/photos');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    photos = await res.json();
+
+    if (photos.length === 0) {
+      meta.textContent = 'No photos yet — be the first to upload!';
+      content.innerHTML =
+        '<div class="empty-state">' +
+          '<span class="empty-icon">📭</span>' +
+          '<p>No photos uploaded yet.</p>' +
+          '<a href="/birthday90" style="color:var(--accent);font-weight:600;font-family:\'Source Sans 3\',sans-serif;">Be the first to share a moment!</a>' +
+        '</div>';
+      return;
+    }
+
+    const newestDate = new Date(photos[0].lastModified).toLocaleDateString('en-US', {
+      month: 'long', day: 'numeric', year: 'numeric',
+    });
+    meta.textContent =
+      photos.length + ' moment' + (photos.length !== 1 ? 's' : '') +
+      ' shared · Latest: ' + newestDate;
+
+    const grid = document.createElement('div');
+    grid.className = 'photo-grid';
+
+    photos.forEach(function(photo, i) {
+      const item = document.createElement('div');
+      item.className = 'photo-item';
+      item.setAttribute('role', 'button');
+      item.setAttribute('tabindex', '0');
+      item.setAttribute('aria-label', 'View ' + (photo.originalName || photo.name));
+
+      const isVideo = photo.contentType && photo.contentType.startsWith('video/');
+
+      if (isVideo) {
+        const vid = document.createElement('video');
+        vid.src = photo.proxyUrl;
+        vid.muted = true;
+        vid.preload = 'metadata';
+        item.appendChild(vid);
+        const badge = document.createElement('span');
+        badge.className = 'video-badge';
+        badge.textContent = '▶ Video';
+        item.appendChild(badge);
+      } else {
+        const img = document.createElement('img');
+        img.src = photo.proxyUrl;
+        img.alt = photo.originalName || photo.name;
+        img.loading = 'lazy';
+        item.appendChild(img);
+      }
+
+      item.addEventListener('click', function() { openLightbox(i); });
+      item.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') openLightbox(i);
+      });
+
+      grid.appendChild(item);
+    });
+
+    content.innerHTML = '';
+    content.appendChild(grid);
+  } catch (err) {
+    meta.textContent = '';
+    content.innerHTML =
+      '<div class="empty-state">' +
+        '<span class="empty-icon">⚠️</span>' +
+        '<p>Could not load photos. Please try refreshing.</p>' +
+        '<p style="font-size:0.8rem;color:var(--muted)">' + err.message + '</p>' +
+      '</div>';
+  }
+}
+
+function openLightbox(index) {
+  lightboxIndex = index;
+  renderLightbox();
+  document.getElementById('lightbox').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  document.getElementById('lightboxClose').focus();
+}
+
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function renderLightbox() {
+  const photo = photos[lightboxIndex];
+  const inner = document.getElementById('lightboxInner');
+  const isVideo = photo.contentType && photo.contentType.startsWith('video/');
+
+  inner.innerHTML = '';
+
+  if (isVideo) {
+    const vid = document.createElement('video');
+    vid.src = photo.proxyUrl;
+    vid.controls = true;
+    vid.autoplay = true;
+    vid.style.maxHeight = '80vh';
+    inner.appendChild(vid);
+  } else {
+    const img = document.createElement('img');
+    img.src = photo.proxyUrl;
+    img.alt = photo.originalName || photo.name;
+    inner.appendChild(img);
+  }
+
+  const caption = document.createElement('div');
+  caption.className = 'lightbox-caption';
+  caption.textContent =
+    (photo.originalName || photo.name) +
+    '  ·  ' + (lightboxIndex + 1) + ' of ' + photos.length;
+  inner.appendChild(caption);
+
+  const prevBtn = document.getElementById('lightboxPrev');
+  const nextBtn = document.getElementById('lightboxNext');
+  prevBtn.style.display = lightboxIndex > 0 ? 'flex' : 'none';
+  nextBtn.style.display = lightboxIndex < photos.length - 1 ? 'flex' : 'none';
+}
+
+document.getElementById('lightboxClose').addEventListener('click', closeLightbox);
+document.getElementById('lightboxPrev').addEventListener('click', function() {
+  if (lightboxIndex > 0) { lightboxIndex--; renderLightbox(); }
+});
+document.getElementById('lightboxNext').addEventListener('click', function() {
+  if (lightboxIndex < photos.length - 1) { lightboxIndex++; renderLightbox(); }
+});
+document.getElementById('lightbox').addEventListener('click', function(e) {
+  if (e.target === document.getElementById('lightbox')) closeLightbox();
+});
+document.getElementById('refreshBtn').addEventListener('click', loadPhotos);
+
+document.addEventListener('keydown', function(e) {
+  if (!document.getElementById('lightbox').classList.contains('open')) return;
+  if (e.key === 'Escape') closeLightbox();
+  if (e.key === 'ArrowLeft' && lightboxIndex > 0) { lightboxIndex--; renderLightbox(); }
+  if (e.key === 'ArrowRight' && lightboxIndex < photos.length - 1) { lightboxIndex++; renderLightbox(); }
+});
+
+loadPhotos();
+</script>

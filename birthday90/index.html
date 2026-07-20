@@ -1,0 +1,452 @@
+---
+layout: default
+title: "Dad's 90th Birthday 🎉"
+description: "Share your photos and videos to celebrate this special day"
+permalink: /birthday90/
+---
+
+<style>
+.birthday-card {
+  background: var(--panel);
+  border-radius: 24px;
+  padding: 36px;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+.birthday-heading {
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: clamp(1.8rem, 5vw, 2.6rem);
+  margin: 0 0 8px;
+  color: var(--ink);
+  text-align: center;
+}
+
+.birthday-sub {
+  text-align: center;
+  color: var(--muted);
+  margin: 0 0 28px;
+  font-size: 1.05rem;
+  font-family: "Source Sans 3", "Segoe UI", sans-serif;
+}
+
+.upload-zone {
+  border: 2px dashed var(--border);
+  border-radius: 18px;
+  padding: 40px 24px;
+  text-align: center;
+  background: var(--accent-soft);
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  position: relative;
+}
+
+.upload-zone:hover,
+.upload-zone.drag-over {
+  border-color: var(--accent);
+  background: rgba(45, 106, 109, 0.08);
+}
+
+.upload-zone input[type="file"] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+}
+
+.upload-icon {
+  font-size: 3rem;
+  margin-bottom: 12px;
+  display: block;
+  pointer-events: none;
+}
+
+.upload-zone-label {
+  font-family: "Source Sans 3", "Segoe UI", sans-serif;
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: var(--accent);
+  display: block;
+  margin-bottom: 6px;
+  pointer-events: none;
+}
+
+.upload-zone-hint {
+  font-size: 0.88rem;
+  color: var(--muted);
+  font-family: "Source Sans 3", "Segoe UI", sans-serif;
+  pointer-events: none;
+}
+
+.preview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.preview-item {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--accent-soft);
+}
+
+.preview-item img,
+.preview-item video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.preview-item .remove-btn {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.65);
+  color: white;
+  border: none;
+  font-size: 15px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  padding: 0;
+}
+
+.preview-item .progress-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.52);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 0.75rem;
+  gap: 6px;
+  font-family: "Source Sans 3", "Segoe UI", sans-serif;
+}
+
+.progress-bar-wrap {
+  width: 76%;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 999px;
+  height: 4px;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: white;
+  border-radius: 999px;
+  width: 0%;
+  animation: indeterminate 1s linear infinite;
+}
+
+@keyframes indeterminate {
+  0%   { width: 0%; margin-left: 0; }
+  50%  { width: 60%; margin-left: 20%; }
+  100% { width: 0%; margin-left: 100%; }
+}
+
+.preview-item .status-done {
+  position: absolute;
+  inset: 0;
+  background: rgba(45, 106, 109, 0.72);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 2rem;
+}
+
+.preview-item .status-error {
+  position: absolute;
+  inset: 0;
+  background: rgba(180, 40, 40, 0.72);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 2rem;
+}
+
+.video-badge {
+  position: absolute;
+  bottom: 5px;
+  left: 5px;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  font-size: 0.65rem;
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-family: "Source Sans 3", "Segoe UI", sans-serif;
+  pointer-events: none;
+}
+
+.upload-btn {
+  display: block;
+  width: 100%;
+  margin-top: 20px;
+  padding: 15px;
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 14px;
+  font-family: "Source Sans 3", "Segoe UI", sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  box-shadow: 0 8px 20px rgba(45, 106, 109, 0.25);
+}
+
+.upload-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.upload-btn:not(:disabled):hover {
+  opacity: 0.88;
+}
+
+.gallery-link {
+  display: block;
+  text-align: center;
+  margin-top: 18px;
+  font-family: "Source Sans 3", "Segoe UI", sans-serif;
+  font-weight: 600;
+  color: var(--accent);
+  text-decoration: none;
+  font-size: 1rem;
+}
+
+.gallery-link:hover {
+  text-decoration: underline;
+}
+
+.status-message {
+  text-align: center;
+  padding: 12px 16px;
+  border-radius: 12px;
+  margin-top: 16px;
+  font-family: "Source Sans 3", "Segoe UI", sans-serif;
+  font-size: 0.95rem;
+  display: none;
+}
+
+.status-message.success {
+  background: var(--accent-soft);
+  color: var(--accent);
+  border: 1px solid rgba(45, 106, 109, 0.2);
+  display: block;
+}
+
+.status-message.error {
+  background: #fff0f0;
+  color: #b83232;
+  border: 1px solid #f5c6c6;
+  display: block;
+}
+
+@media (max-width: 480px) {
+  .birthday-card {
+    padding: 24px 18px;
+  }
+}
+</style>
+
+<div class="birthday-card">
+  <h1 class="birthday-heading">🎉 Happy 90th Birthday Dad! 🎂</h1>
+  <p class="birthday-sub">Share your photos &amp; videos to celebrate this special day</p>
+
+  <div class="upload-zone" id="uploadZone">
+    <input type="file" id="fileInput" accept="image/*,video/*" multiple>
+    <span class="upload-icon">📸</span>
+    <span class="upload-zone-label">Tap to select photos &amp; videos</span>
+    <span class="upload-zone-hint">Photos and videos welcome · Select multiple at once</span>
+  </div>
+
+  <div class="preview-grid" id="previewGrid"></div>
+
+  <div class="status-message" id="statusMessage"></div>
+
+  <button class="upload-btn" id="uploadBtn" disabled>Upload to the Party! 🎉</button>
+
+  <a class="gallery-link" href="/birthday90/gallery">📷 View all party photos →</a>
+</div>
+
+<script>
+const FUNCTION_BASE = 'https://birthday90-api.azurewebsites.net';
+
+const fileInput  = document.getElementById('fileInput');
+const previewGrid = document.getElementById('previewGrid');
+const uploadBtn  = document.getElementById('uploadBtn');
+const statusMsg  = document.getElementById('statusMessage');
+const uploadZone = document.getElementById('uploadZone');
+
+let selectedFiles = [];
+
+fileInput.addEventListener('change', handleNewFiles);
+
+uploadZone.addEventListener('dragover', (e) => {
+  e.preventDefault();
+  uploadZone.classList.add('drag-over');
+});
+uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
+uploadZone.addEventListener('drop', (e) => {
+  e.preventDefault();
+  uploadZone.classList.remove('drag-over');
+  addFiles(Array.from(e.dataTransfer.files));
+});
+
+function handleNewFiles(e) {
+  addFiles(Array.from(e.target.files));
+  fileInput.value = '';
+}
+
+function addFiles(newFiles) {
+  selectedFiles = [...selectedFiles, ...newFiles];
+  renderPreviews();
+  uploadBtn.disabled = selectedFiles.length === 0;
+  hideStatus();
+}
+
+function renderPreviews() {
+  previewGrid.innerHTML = '';
+  selectedFiles.forEach((file, i) => {
+    const item = document.createElement('div');
+    item.className = 'preview-item';
+    item.id = 'preview-' + i;
+
+    if (file.type.startsWith('video/')) {
+      const vid = document.createElement('video');
+      vid.src = URL.createObjectURL(file);
+      vid.muted = true;
+      vid.preload = 'metadata';
+      item.appendChild(vid);
+      const badge = document.createElement('span');
+      badge.className = 'video-badge';
+      badge.textContent = '▶ Video';
+      item.appendChild(badge);
+    } else {
+      const img = document.createElement('img');
+      img.src = URL.createObjectURL(file);
+      img.alt = file.name;
+      item.appendChild(img);
+    }
+
+    const btn = document.createElement('button');
+    btn.className = 'remove-btn';
+    btn.textContent = '×';
+    btn.title = 'Remove';
+    btn.addEventListener('click', () => {
+      selectedFiles.splice(i, 1);
+      renderPreviews();
+      uploadBtn.disabled = selectedFiles.length === 0;
+    });
+    item.appendChild(btn);
+    previewGrid.appendChild(item);
+  });
+}
+
+uploadBtn.addEventListener('click', async () => {
+  if (selectedFiles.length === 0) return;
+
+  uploadBtn.disabled = true;
+  uploadBtn.textContent = 'Uploading…';
+  hideStatus();
+
+  let successCount = 0;
+  let errorCount = 0;
+
+  for (let i = 0; i < selectedFiles.length; i++) {
+    const file = selectedFiles[i];
+    const item = document.getElementById('preview-' + i);
+    if (!item) continue;
+
+    const overlay = document.createElement('div');
+    overlay.className = 'progress-overlay';
+    overlay.innerHTML =
+      '<span>Uploading…</span>' +
+      '<div class="progress-bar-wrap"><div class="progress-bar-fill"></div></div>';
+    item.appendChild(overlay);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file, file.name);
+
+      const res = await fetch(FUNCTION_BASE + '/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!res.ok) {
+        const text = await res.text().catch(() => '');
+        throw new Error('HTTP ' + res.status + (text ? ': ' + text : ''));
+      }
+
+      item.removeChild(overlay);
+      const done = document.createElement('div');
+      done.className = 'status-done';
+      done.textContent = '✓';
+      item.appendChild(done);
+      successCount++;
+    } catch (err) {
+      console.error('Upload error for ' + file.name + ':', err);
+      item.removeChild(overlay);
+      const errEl = document.createElement('div');
+      errEl.className = 'status-error';
+      errEl.title = err.message;
+      errEl.textContent = '✗';
+      item.appendChild(errEl);
+      errorCount++;
+    }
+  }
+
+  if (errorCount === 0) {
+    showStatus(
+      '✅ ' + successCount + ' file' + (successCount !== 1 ? 's' : '') +
+      ' uploaded! Thank you for sharing!',
+      'success'
+    );
+    selectedFiles = [];
+    renderPreviews();
+    uploadBtn.textContent = 'Upload More! 🎉';
+    uploadBtn.disabled = true;
+  } else if (successCount > 0) {
+    showStatus(
+      'Uploaded ' + successCount + ' file' + (successCount !== 1 ? 's' : '') +
+      '. ' + errorCount + ' failed — you can try again.',
+      'error'
+    );
+    uploadBtn.textContent = 'Upload to the Party! 🎉';
+    uploadBtn.disabled = false;
+  } else {
+    showStatus('Upload failed. Please check your connection and try again.', 'error');
+    uploadBtn.textContent = 'Upload to the Party! 🎉';
+    uploadBtn.disabled = false;
+  }
+});
+
+function showStatus(msg, type) {
+  statusMsg.textContent = msg;
+  statusMsg.className = 'status-message ' + type;
+}
+
+function hideStatus() {
+  statusMsg.className = 'status-message';
+  statusMsg.textContent = '';
+}
+</script>
