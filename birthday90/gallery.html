@@ -275,12 +275,12 @@ permalink: /birthday90/gallery/
 <script>
 const FUNCTION_BASE = 'https://birthday90-api.azurewebsites.net';
 
-// Validate that a photo URL comes from Azure Blob Storage to guard against
+// Validate that a photo URL comes from the Function App to guard against
 // a compromised backend response redirecting browsers to an unexpected origin.
 function isSafePhotoUrl(url) {
   try {
     const parsed = new URL(url);
-    return parsed.protocol === 'https:' && parsed.hostname.endsWith('.blob.core.windows.net');
+    return parsed.origin === FUNCTION_BASE;
   } catch {
     return false;
   }

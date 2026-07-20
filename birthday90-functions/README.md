@@ -23,8 +23,6 @@ $IDENTITY_ID = az identity show --name birthday90-api-identity --resource-group 
 # Storage Blob Data Contributor (read/write blobs)
 az role assignment create --assignee $IDENTITY_ID --role "Storage Blob Data Contributor" --scope $STORAGE_ID
 
-# Storage Blob Delegator (required for user delegation SAS if you use that approach later)
-az role assignment create --assignee $IDENTITY_ID --role "Storage Blob Delegator" --scope $STORAGE_ID
 ```
 
 ### 2. Assign the managed identity to the Function App
@@ -44,7 +42,7 @@ az functionapp config appsettings set `
   --resource-group rg-birthday90 `
   --settings `
     STORAGE_ACCOUNT_NAME=birthday90photos `
-    CONTAINER_NAME=uploads
+    BLOB_CONTAINER_NAME=uploads
 ```
 
 ### 4. Configure CORS
@@ -65,13 +63,13 @@ az storage container create `
   --auth-mode login
 ```
 
-> **Note:** `ListPhotos` generates time-limited user-delegation SAS tokens so browsers load photos directly from Azure Blob Storage, avoiding any private-network restrictions on the Function App.
+> **Note:** `ListPhotos` returns Function App proxy URLs. The browser requests media through `GetPhoto`, and the Function App reads blobs from private storage using its managed identity and virtual network integration.
 
 
 ```powershell
 cd birthday90-functions
 npm install
-func azure functionapp publish birthday90-api --node
+func azure functionapp publish birthday90-api --javascript
 ```
 
 > Requires [Azure Functions Core Tools](https://docs.microsoft.com/azure/azure-functions/functions-run-local) v4 installed.

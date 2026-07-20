@@ -4,7 +4,7 @@ const { DefaultAzureCredential } = require('@azure/identity');
 const busboy = require('busboy');
 
 const STORAGE_ACCOUNT = process.env.STORAGE_ACCOUNT_NAME || 'birthday90photos';
-const CONTAINER_NAME  = process.env.CONTAINER_NAME        || 'uploads';
+const BLOB_CONTAINER_NAME = process.env.BLOB_CONTAINER_NAME || 'uploads';
 
 const CORS_HEADERS = {
     'Access-Control-Allow-Origin':  'https://mikeswantek.com',
@@ -35,7 +35,7 @@ app.http('UploadPhoto', {
             `https://${STORAGE_ACCOUNT}.blob.core.windows.net`,
             credential
         );
-        const containerClient = blobServiceClient.getContainerClient(CONTAINER_NAME);
+        const containerClient = blobServiceClient.getContainerClient(BLOB_CONTAINER_NAME);
         await containerClient.createIfNotExists();
 
         const bodyBuffer = Buffer.from(await request.arrayBuffer());

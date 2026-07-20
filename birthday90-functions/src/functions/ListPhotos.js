@@ -1,13 +1,9 @@
 const { app } = require('@azure/functions');
-const { BlobServiceClient, BlobSASPermissions, generateBlobSASQueryParameters } = require('@azure/storage-blob');
+const { BlobServiceClient } = require('@azure/storage-blob');
 const { DefaultAzureCredential } = require('@azure/identity');
 
 const STORAGE_ACCOUNT = process.env.STORAGE_ACCOUNT_NAME || 'birthday90photos';
-const CONTAINER_NAME  = process.env.CONTAINER_NAME        || 'uploads';
-
-// SAS tokens are valid for 24 hours so browsers can load photos directly
-// from Azure Blob Storage without going through the Function App proxy.
-const SAS_TTL_MS = 24 * 60 * 60 * 1000;
+const BLOB_CONTAINER_NAME = process.env.BLOB_CONTAINER_NAME || 'uploads';
 
 const CORS_HEADERS = {
     'Access-Control-Allow-Origin':  'https://mikeswantek.com',
@@ -30,12 +26,7 @@ app.http('ListPhotos', {
                 `https://${STORAGE_ACCOUNT}.blob.core.windows.net`,
                 credential
             );
-            const containerClient = blobServiceClient.getContainerClient(CONTAINER_NAME);
-
-            // Obtain a user-delegation key once for all SAS tokens in this request.
-            const now     = new Date();
-            const expires = new Date(now.getTime() + SAS_TTL_MS);
-            const userDelegationKey = await blobServiceClient.getUserDelegationKey(now, expires);
+            const containerClient = blobServiceClient.getContainerClient(BLOB_CONTAINER_NAME);
 
             const photos = [];
             for await (const blob of containerClient.listBlobsFlat({ includeMetadata: true })) {
@@ -54,23 +45,10 @@ app.http('ListPhotos', {
                     }
                 }
 
-                // Generate a read-only SAS token so browsers can fetch the blob directly,
-                // bypassing the Function App proxy (which may be on a private network).
-                const sasQuery = generateBlobSASQueryParameters(
-                    {
-                        containerName: CONTAINER_NAME,
-                        blobName:      blob.name,
-                        permissions:   BlobSASPermissions.parse('r'),
-                        startsOn:      now,
-                        expiresOn:     expires,
-                    },
-                    userDelegationKey,
-                    STORAGE_ACCOUNT
+                const proxyUrl = new URL(
+                    `/api/photo/${encodeURIComponent(blob.name)}`,
+                    request.url
                 ).toString();
-
-                const proxyUrl =
-                    `https://${STORAGE_ACCOUNT}.blob.core.windows.net` +
-                    `/${CONTAINER_NAME}/${encodeURIComponent(blob.name)}?${sasQuery}`;
 
                 photos.push({
                     name:         blob.name,

@@ -3,7 +3,7 @@ const { BlobServiceClient } = require('@azure/storage-blob');
 const { DefaultAzureCredential } = require('@azure/identity');
 
 const STORAGE_ACCOUNT = process.env.STORAGE_ACCOUNT_NAME || 'birthday90photos';
-const CONTAINER_NAME  = process.env.CONTAINER_NAME        || 'uploads';
+const BLOB_CONTAINER_NAME = process.env.BLOB_CONTAINER_NAME || 'uploads';
 
 app.http('GetPhoto', {
     methods:   ['GET'],
@@ -26,7 +26,7 @@ app.http('GetPhoto', {
                 `https://${STORAGE_ACCOUNT}.blob.core.windows.net`,
                 credential
             );
-            const containerClient = blobServiceClient.getContainerClient(CONTAINER_NAME);
+            const containerClient = blobServiceClient.getContainerClient(BLOB_CONTAINER_NAME);
             const blobClient      = containerClient.getBlockBlobClient(blobName);
 
             const downloadResponse = await blobClient.download(0);
