@@ -2,7 +2,6 @@ const { app } = require('@azure/functions');
 const {
     getUploadStatus,
     issueUploadToken,
-    verifyPartyCode,
 } = require('../auth');
 
 const CORS_HEADERS = {
@@ -29,11 +28,6 @@ app.http('AuthorizeUpload', {
                     opensAt: new Date(uploadStatus.opensAt).toISOString(),
                     closesAt: new Date(uploadStatus.closesAt).toISOString(),
                 });
-            }
-
-            const body = await request.json().catch(() => ({}));
-            if (!verifyPartyCode(body.code, process.env.PARTY_CODE_HASH)) {
-                return jsonResponse(401, { error: 'The party code is not valid' });
             }
 
             const { token, expiresAt } = issueUploadToken();

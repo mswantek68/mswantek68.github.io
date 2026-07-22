@@ -26,16 +26,6 @@ function getUploadStatus(now = Date.now(), env = process.env) {
     return { allowed: true, reason: 'open', opensAt, closesAt };
 }
 
-function verifyPartyCode(code, expectedHash) {
-    if (typeof code !== 'string' || !/^[a-f0-9]{64}$/i.test(expectedHash || '')) {
-        return false;
-    }
-
-    const actual = crypto.createHash('sha256').update(code, 'utf8').digest();
-    const expected = Buffer.from(expectedHash, 'hex');
-    return crypto.timingSafeEqual(actual, expected);
-}
-
 function signToken(payload, secret) {
     const encodedPayload = Buffer.from(JSON.stringify(payload)).toString('base64url');
     const signature = crypto.createHmac('sha256', secret).update(encodedPayload).digest('base64url');
@@ -107,6 +97,5 @@ function verifyUploadToken(token, now = Date.now(), env = process.env) {
 module.exports = {
     getUploadStatus,
     issueUploadToken,
-    verifyPartyCode,
     verifyUploadToken,
 };

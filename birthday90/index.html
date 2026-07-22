@@ -38,40 +38,6 @@ permalink: /birthday90/
   text-align: center;
 }
 
-.access-label {
-  display: block;
-  margin-bottom: 8px;
-  color: var(--ink);
-  font-family: "Source Sans 3", "Segoe UI", sans-serif;
-  font-weight: 600;
-}
-
-.access-row {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 8px;
-}
-
-.access-input {
-  min-width: 0;
-  padding: 12px 14px;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  background: var(--panel);
-  color: var(--ink);
-  font: inherit;
-}
-
-.access-btn {
-  padding: 12px 18px;
-  border: 0;
-  border-radius: 10px;
-  background: var(--accent);
-  color: white;
-  font-weight: 700;
-  cursor: pointer;
-}
-
 [hidden] {
   display: none !important;
 }
@@ -316,11 +282,6 @@ permalink: /birthday90/
   <p class="birthday-sub">Share your photos &amp; videos to celebrate this special day</p>
 
   <div class="access-panel" id="accessPanel">
-    <label class="access-label" for="partyCode">Enter the party code to share photos and videos</label>
-    <div class="access-row">
-      <input class="access-input" id="partyCode" type="password" autocomplete="one-time-code">
-      <button class="access-btn" id="authorizeBtn" type="button">Continue</button>
-    </div>
     <div class="status-message" id="accessStatus"></div>
   </div>
 
@@ -356,16 +317,9 @@ const statusMsg  = document.getElementById('statusMessage');
 const uploadZone = document.getElementById('uploadZone');
 const accessPanel = document.getElementById('accessPanel');
 const accessStatus = document.getElementById('accessStatus');
-const authorizeBtn = document.getElementById('authorizeBtn');
-const partyCode = document.getElementById('partyCode');
 const uploader = document.getElementById('uploader');
 
 let selectedFiles = [];
-
-authorizeBtn.addEventListener('click', authorizeUpload);
-partyCode.addEventListener('keydown', function(e) {
-  if (e.key === 'Enter') authorizeUpload();
-});
 
 async function initializeUploadAccess() {
   try {
@@ -377,45 +331,33 @@ async function initializeUploadAccess() {
         ? 'Uploads open July 25 at noon Eastern.'
         : 'Uploads for this celebration are now closed.';
       showElementStatus(accessStatus, message, 'error');
-      partyCode.disabled = true;
-      authorizeBtn.disabled = true;
       return;
     }
 
     const expiresAt = Date.parse(sessionStorage.getItem(UPLOAD_TOKEN_EXPIRY_KEY) || '');
     if (sessionStorage.getItem(UPLOAD_TOKEN_KEY) && expiresAt > Date.now()) {
       showUploader();
+      return;
     }
+    await authorizeUpload();
   } catch {
     showElementStatus(accessStatus, 'Could not check upload availability. Please refresh.', 'error');
   }
 }
 
 async function authorizeUpload() {
-  const code = partyCode.value;
-  if (!code) {
-    showElementStatus(accessStatus, 'Enter the party code.', 'error');
-    return;
-  }
-
-  authorizeBtn.disabled = true;
   try {
     const response = await fetch(FUNCTION_BASE + '/api/authorize', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ code }),
     });
     const result = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(result.error || 'Could not authorize uploads');
 
     sessionStorage.setItem(UPLOAD_TOKEN_KEY, result.token);
     sessionStorage.setItem(UPLOAD_TOKEN_EXPIRY_KEY, result.expiresAt);
-    partyCode.value = '';
     showUploader();
   } catch (error) {
     showElementStatus(accessStatus, error.message, 'error');
-  } finally {
-    authorizeBtn.disabled = false;
   }
 }
 
@@ -509,6 +451,7 @@ uploadBtn.addEventListener('click', async () => {
   let errorCount = 0;
   let tokenExpired = false;
   const failedFiles = [];
+  const uploadErrors = [];
 
   for (let i = 0; i < selectedFiles.length; i++) {
     const file = selectedFiles[i];
@@ -554,6 +497,7 @@ uploadBtn.addEventListener('click', async () => {
       successCount++;
     } catch (err) {
       console.error('Upload error for ' + file.name + ':', err);
+      uploadErrors.push(file.name + ': ' + err.message);
       item.removeChild(overlay);
       const errEl = document.createElement('div');
       errEl.className = 'status-error';
@@ -574,9 +518,10 @@ uploadBtn.addEventListener('click', async () => {
     renderPreviews();
     uploader.hidden = true;
     accessPanel.hidden = false;
-    showElementStatus(accessStatus, 'Your upload session expired. Enter the party code again.', 'error');
+    showElementStatus(accessStatus, 'Refreshing your upload session…', 'error');
     uploadBtn.textContent = 'Upload to the Party! 🎉';
     uploadBtn.disabled = selectedFiles.length === 0;
+    await authorizeUpload();
     return;
   }
 
@@ -603,7 +548,7 @@ uploadBtn.addEventListener('click', async () => {
   } else {
     selectedFiles = failedFiles;
     renderPreviews();
-    showStatus('Upload failed. Please check your connection and try again.', 'error');
+    showStatus('Upload failed. ' + uploadErrors.join(' '), 'error');
     uploadBtn.textContent = 'Upload to the Party! 🎉';
     uploadBtn.disabled = false;
   }
@@ -622,7 +567,9 @@ async function createThumbnail(file) {
     context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
     bitmap.close();
     return await new Promise(function(resolve) {
-      canvas.toBlob(resolve, 'image/webp', 0.82);
+      canvas.toBlob(function(blob) {
+        resolve(blob && blob.type === 'image/webp' ? blob : null);
+      }, 'image/webp', 0.82);
     });
   } catch (error) {
     console.warn('Thumbnail generation skipped for ' + file.name, error);
