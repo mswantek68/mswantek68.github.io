@@ -1,11 +1,8 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const crypto = require('crypto');
-
 const {
     getUploadStatus,
     issueUploadToken,
-    verifyPartyCode,
     verifyUploadToken,
 } = require('../src/auth');
 
@@ -23,13 +20,6 @@ test('reports upload window status at each boundary', () => {
     assert.equal(getUploadStatus(opensAt, env).reason, 'open');
     assert.equal(getUploadStatus(closesAt, env).reason, 'open');
     assert.equal(getUploadStatus(closesAt + 1, env).reason, 'closed');
-});
-
-test('validates the party code against its SHA-256 hash', () => {
-    const expectedHash = crypto.createHash('sha256').update('test-party-code').digest('hex');
-    assert.equal(verifyPartyCode('test-party-code', expectedHash), true);
-    assert.equal(verifyPartyCode('wrong', expectedHash), false);
-    assert.equal(verifyPartyCode('', expectedHash), false);
 });
 
 test('issues and validates an upload token', () => {

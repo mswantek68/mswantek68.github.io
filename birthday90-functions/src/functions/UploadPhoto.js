@@ -88,7 +88,7 @@ app.http('UploadPhoto', {
 
                 if (fieldname === 'thumbnail') {
                     if (!originalResult || mimeType !== 'image/webp') {
-                        rejectedResponse = jsonResponse(400, { error: 'Invalid thumbnail upload' });
+                        context.warn('Skipping unsupported optional thumbnail:', mimeType);
                         file.resume();
                         return;
                     }

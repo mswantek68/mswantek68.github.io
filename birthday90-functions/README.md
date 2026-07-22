@@ -16,7 +16,7 @@ Azure Functions for the birthday90 photo/video upload app on mikeswantek.com.
 | `UploadPhoto` | `/api/upload` | POST | Receives multipart file upload, stores to Azure Blob Storage |
 | `ListPhotos` | `/api/photos` | GET | Lists all uploaded photos/videos as JSON |
 | `GetPhoto` | `/api/photo/{blobName}` | GET | Proxies a photo/video from Blob Storage to the browser |
-| `AuthorizeUpload` | `/api/authorize` | POST | Exchanges the shared party code for a signed upload token |
+| `AuthorizeUpload` | `/api/authorize` | POST | Issues a signed upload token while the upload window is open |
 | `UploadStatus` | `/api/upload-status` | GET | Reports whether the configured upload window is open |
 | `GetThumbnail` | `/api/thumbnail/{blobName}` | GET | Proxies a private WebP thumbnail to the browser |
 
@@ -61,9 +61,8 @@ az functionapp config appsettings set `
     MAX_VIDEO_BYTES=78643200
 ```
 
-  Configure `PARTY_CODE_HASH` and `UPLOAD_TOKEN_SECRET` separately. Do not commit either
-  value. `PARTY_CODE_HASH` is the lowercase SHA-256 digest of the shared party code, and
-  `UPLOAD_TOKEN_SECRET` must contain at least 32 random bytes.
+  Configure `UPLOAD_TOKEN_SECRET` separately and do not commit its value. The secret must
+  contain at least 32 random bytes.
 
 ### 4. Configure CORS
 

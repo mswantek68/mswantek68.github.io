@@ -11,13 +11,12 @@ Deployed
 
 ## Objective
 
-Secure party uploads with one shared code and a fixed upload window while improving
-gallery performance through private thumbnails and server-side pagination.
+Limit party uploads to a fixed upload window while improving gallery performance
+through private thumbnails and server-side pagination.
 
 ## Confirmed Decisions
 
-* Require one shared party code before uploads are enabled
-* Store only a one-way code hash in Function App settings
+* Allow uploads without a password while the configured upload window is open
 * Open uploads on July 25, 2026 at 12:00 PM Eastern
   (`2026-07-25T16:00:00Z`)
 * Close uploads on August 8, 2026 at 11:59 PM Eastern
@@ -33,7 +32,7 @@ gallery performance through private thumbnails and server-side pagination.
 
 ```mermaid
 flowchart LR
-    A[Guest enters party code] --> B[Authorize Function]
+    A[Guest opens upload page] --> B[Authorize Function]
     B --> C[Short-lived signed token]
     C --> D[Upload Function]
     D --> E[Private uploads container]
@@ -51,13 +50,12 @@ flowchart LR
 
 ### Upload Authorization
 
-* Add `POST /api/authorize` to validate the shared code using a timing-safe comparison
+* Add `POST /api/authorize` to issue a signed session while uploads are open
 * Reject authorization before the opening time and after the closing time
 * Return an HMAC-signed token containing issued-at and expiry timestamps
 * Store the token in browser `sessionStorage`
 * Require `Authorization: Bearer <token>` on `POST /api/upload`
 * Revalidate token signature, expiry, and the upload window on every upload
-* Display an upload-code form before showing the upload controls
 * Display a closed message outside the configured upload window
 
 ### Upload Safety and Performance
@@ -106,7 +104,6 @@ flowchart LR
 Add these Function App settings without committing secret values:
 
 ```text
-PARTY_CODE_HASH=<SHA-256 hash generated during deployment>
 UPLOAD_TOKEN_SECRET=<cryptographically random 32-byte secret>
 UPLOADS_OPEN_AT=2026-07-25T16:00:00Z
 UPLOADS_CLOSE_AT=2026-08-09T03:59:00Z
@@ -161,7 +158,6 @@ Validation completed on July 20, 2026.
 * Browser script parsing for both birthday pages: passed
 * VS Code diagnostics for the workspace: no errors
 * `git diff --check`: passed
-* Secret scan for the production party code: no matches
 * Function resource state: `Running` on Flex Consumption with a user-assigned identity
 * VNet integration: connected to `vnet-birthday90/snet-functions`
 * Storage network access: public network access disabled
