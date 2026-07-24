@@ -182,7 +182,7 @@ Validation completed on July 23, 2026.
 * Function managed identity: `Storage Blob Data Owner` confirmed
 * Storage network access: public network access disabled
 * Storage authentication: shared-key access disabled
-* Administration routes: Function-level authorization configured
+* Administration routes: constant-time secret validation configured
 * Destructive behavior: delete removes the selected original and associated thumbnail only
 
 ## Deployment Proof

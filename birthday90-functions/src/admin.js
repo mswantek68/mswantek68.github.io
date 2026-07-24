@@ -1,3 +1,15 @@
+const crypto = require('node:crypto');
+
+function isAdminKeyValid(providedKey, configuredKey = process.env.ADMIN_ACCESS_KEY) {
+    if (!providedKey || !configuredKey) {
+        return false;
+    }
+
+    const provided = Buffer.from(providedKey);
+    const configured = Buffer.from(configuredKey);
+    return provided.length === configured.length && crypto.timingSafeEqual(provided, configured);
+}
+
 function isSafeBlobName(blobName) {
     return typeof blobName === 'string' &&
         blobName.length > 0 &&
@@ -28,5 +40,6 @@ function contentDisposition(filename) {
 module.exports = {
     contentDisposition,
     decodeOriginalName,
+    isAdminKeyValid,
     isSafeBlobName,
 };

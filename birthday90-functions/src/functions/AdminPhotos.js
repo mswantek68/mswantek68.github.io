@@ -4,6 +4,7 @@ const { DefaultAzureCredential } = require('@azure/identity');
 const {
     contentDisposition,
     decodeOriginalName,
+    isAdminKeyValid,
     isSafeBlobName,
 } = require('../admin');
 
@@ -14,7 +15,7 @@ const THUMBNAIL_CONTAINER_NAME = process.env.THUMBNAIL_CONTAINER_NAME || 'thumbn
 const CORS_HEADERS = {
     'Access-Control-Allow-Origin': 'https://mikeswantek.com',
     'Access-Control-Allow-Methods': 'GET, DELETE, OPTIONS',
-    'Access-Control-Allow-Headers': 'X-Functions-Key, Content-Type',
+    'Access-Control-Allow-Headers': 'X-Admin-Key, Content-Type',
     'Cache-Control': 'no-store',
     Vary: 'Origin',
 };
@@ -39,13 +40,20 @@ function getContainers() {
     };
 }
 
+function isAuthorized(request) {
+    return isAdminKeyValid(request.headers.get('x-admin-key'));
+}
+
 app.http('AdminListPhotos', {
     methods: ['GET', 'OPTIONS'],
-    authLevel: 'function',
+    authLevel: 'anonymous',
     route: 'admin/photos',
     handler: async (request, context) => {
         if (request.method === 'OPTIONS') {
             return { status: 204, headers: CORS_HEADERS };
+        }
+        if (!isAuthorized(request)) {
+            return jsonResponse(401, { error: 'Unauthorized' });
         }
         try {
             const { uploads } = getContainers();
@@ -76,11 +84,14 @@ app.http('AdminListPhotos', {
 
 app.http('AdminDownloadPhoto', {
     methods: ['GET', 'OPTIONS'],
-    authLevel: 'function',
+    authLevel: 'anonymous',
     route: 'admin/photos/{blobName}/download',
     handler: async (request, context) => {
         if (request.method === 'OPTIONS') {
             return { status: 204, headers: CORS_HEADERS };
+        }
+        if (!isAuthorized(request)) {
+            return jsonResponse(401, { error: 'Unauthorized' });
         }
         const blobName = request.params.blobName;
         if (!isSafeBlobName(blobName)) {
@@ -115,11 +126,14 @@ app.http('AdminDownloadPhoto', {
 
 app.http('AdminDeletePhoto', {
     methods: ['DELETE', 'OPTIONS'],
-    authLevel: 'function',
+    authLevel: 'anonymous',
     route: 'admin/photos/{blobName}',
     handler: async (request, context) => {
         if (request.method === 'OPTIONS') {
             return { status: 204, headers: CORS_HEADERS };
+        }
+        if (!isAuthorized(request)) {
+            return jsonResponse(401, { error: 'Unauthorized' });
         }
         const blobName = request.params.blobName;
         if (!isSafeBlobName(blobName)) {

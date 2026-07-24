@@ -3,8 +3,16 @@ const assert = require('node:assert/strict');
 const {
     contentDisposition,
     decodeOriginalName,
+    isAdminKeyValid,
     isSafeBlobName,
 } = require('../src/admin');
+
+test('validates the configured administration key', () => {
+    assert.equal(isAdminKeyValid('correct-key', 'correct-key'), true);
+    assert.equal(isAdminKeyValid('wrong-key', 'correct-key'), false);
+    assert.equal(isAdminKeyValid('', 'correct-key'), false);
+    assert.equal(isAdminKeyValid('correct-key', ''), false);
+});
 
 test('accepts generated blob names and rejects path-like names', () => {
     assert.equal(isSafeBlobName('f8b21d61-1538-4f10-85e8-cd8e53d85e66.jpg'), true);

@@ -206,7 +206,7 @@ permalink: /birthday90/admin/
   </div>
 
   <form class="admin-login" id="adminLogin">
-    <label for="adminToken">Function access key</label>
+    <label for="adminToken">Admin access key</label>
     <div class="admin-login-row">
       <input id="adminToken" type="password" autocomplete="current-password" required>
       <button class="admin-button" type="submit">Open photos</button>
@@ -242,7 +242,7 @@ permalink: /birthday90/admin/
   const downloadSelected = document.getElementById('downloadSelected');
 
   function headers() {
-    return { 'x-functions-key': state.token };
+    return { 'x-admin-key': state.token };
   }
 
   function formatBytes(bytes) {
@@ -333,7 +333,7 @@ permalink: /birthday90/admin/
     status.textContent = 'Loading originals…';
     const response = await fetch(`${API_BASE}/admin/photos`, { headers: headers(), cache: 'no-store' });
     if (response.status === 401 || response.status === 403) {
-      throw new Error('The Function access key was not accepted.');
+      throw new Error('The admin access key was not accepted.');
     }
     if (!response.ok) throw new Error('The photo list could not be loaded.');
     state.photos = await response.json();
