@@ -7,12 +7,15 @@ ms.topic: implementation-plan
 
 ## Status
 
-Deployed
+Validated
 
 ## Objective
 
 Limit party uploads to a fixed upload window while improving gallery performance
 through private thumbnails and server-side pagination.
+
+Add authenticated administration routes for listing, downloading, and deleting
+original media without enabling public Storage networking.
 
 ## Confirmed Decisions
 
@@ -167,6 +170,20 @@ Validation completed on July 20, 2026.
 
 The application is ready for deployment. Production secret values remain outside the
 repository and must be written directly to Function App settings.
+
+### Administration validation proof
+
+Validation completed on July 23, 2026.
+
+* `npm --prefix birthday90-functions test`: 11 tests passed
+* `node --check` on the administration Function and browser script: passed
+* VS Code diagnostics for the administration page and Function source: no errors
+* `git diff --check`: passed
+* Function managed identity: `Storage Blob Data Owner` confirmed
+* Storage network access: public network access disabled
+* Storage authentication: shared-key access disabled
+* Administration routes: Function-level authorization configured
+* Destructive behavior: delete removes the selected original and associated thumbnail only
 
 ## Deployment Proof
 

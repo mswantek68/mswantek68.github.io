@@ -19,6 +19,109 @@ Azure Functions for the birthday90 photo/video upload app on mikeswantek.com.
 | `AuthorizeUpload` | `/api/authorize` | POST | Issues a signed upload token while the upload window is open |
 | `UploadStatus` | `/api/upload-status` | GET | Reports whether the configured upload window is open |
 | `GetThumbnail` | `/api/thumbnail/{blobName}` | GET | Proxies a private WebP thumbnail to the browser |
+| `AdminListPhotos` | `/api/admin/photos` | GET | Lists original media for administrators |
+| `AdminDownloadPhoto` | `/api/admin/photos/{blobName}/download` | GET | Downloads an original file as an attachment |
+| `AdminDeletePhoto` | `/api/admin/photos/{blobName}` | DELETE | Deletes an original and its generated thumbnail |
+
+## Use the photo administration page
+
+The administration page is available at
+<https://mikeswantek.com/birthday90/admin/>. It is intentionally not linked
+from the public birthday page. The Storage account can remain private because
+the page sends requests through the VNet-integrated Function App.
+
+The page requires an Azure Functions host key. The key is held only in memory
+in the open browser tab. It is not committed to the site or saved in browser
+storage.
+
+### Create or retrieve the administration key in the Azure portal
+
+1. Sign in to the [Azure portal](https://portal.azure.com).
+2. Open resource group `rg-birthday90`.
+3. Open Function App `birthday90-api`.
+4. Select **App keys** under **Functions**.
+5. Under **Host keys**, create a key named `birthday90-admin` if it does not
+   exist.
+6. Reveal and copy the value for `birthday90-admin`.
+7. Open <https://mikeswantek.com/birthday90/admin/> in a private browser window.
+8. Paste the key into **Function access key**, then select **Open photos**.
+
+The equivalent Azure CLI command retrieves the existing key without changing
+Storage networking:
+
+```powershell
+az functionapp keys list `
+  --name birthday90-api `
+  --resource-group rg-birthday90 `
+  --query "functionKeys.\"birthday90-admin\"" `
+  --output tsv
+```
+
+> [!IMPORTANT]
+> Treat this host key like a password. Do not send it by email, place it in a
+> URL, commit it to Git, or save it in a shared password field. Select **Lock**
+> and close the browser tab when administration is complete.
+
+### Delete test photos before the event
+
+1. Open the administration page and enter the host key.
+2. Confirm that each displayed filename and preview belongs to a test upload.
+3. Select **Download** first for anything that might need to be retained.
+4. Select **Delete** on one item.
+5. Confirm the permanent deletion prompt.
+6. Repeat for the remaining test files.
+7. Select **View gallery** and confirm that only the intended files remain.
+8. Return to the administration page, select **Lock**, and close the tab.
+
+Deleting an item removes the original from the `uploads` container and its
+generated image from the `thumbnails` container. The action cannot be undone
+through the administration page. Azure Storage soft delete may provide a
+separate recovery window if it is enabled on the account.
+
+### Download and archive the event photos
+
+1. Open the administration page and enter the host key.
+2. Select **Download** to save one original at a time.
+3. To save several originals, select their checkboxes and choose
+   **Download selected**.
+4. Allow multiple downloads if the browser asks for permission.
+5. Verify the downloaded file count, names, sizes, and a sample of the media.
+6. Copy the verified files to the destination, such as OneDrive, SharePoint,
+   another Azure Storage account, or an external drive.
+7. Keep the Azure originals until the destination copy has been verified.
+8. Delete Azure copies only after the archive is complete and independently
+   backed up.
+
+`Download selected` downloads each original separately rather than creating a
+ZIP archive. For a large collection, download in smaller groups and confirm
+each group before continuing.
+
+### End access after the event
+
+Rotate or remove the `birthday90-admin` host key after the archive is complete.
+In the Azure portal, open **App keys** for `birthday90-api`, then renew or delete
+the `birthday90-admin` host key. A renewed or deleted key immediately prevents
+the old value from opening the administration page.
+
+The upload window is controlled separately by `UPLOADS_OPEN_AT` and
+`UPLOADS_CLOSE_AT`. Closing uploads does not remove existing media and does not
+disable administration.
+
+### Troubleshoot administration
+
+* **The Function access key was not accepted**: Retrieve the current
+  `birthday90-admin` host key and try again. Function-specific keys do not work
+  across all three administration routes.
+* **The photo list could not be loaded**: Check that `birthday90-api` is
+  running and that the administration Functions have been deployed.
+* **A download does not start**: Allow downloads and multiple downloads for
+  `mikeswantek.com`, then retry the item individually.
+* **A deleted photo remains visible**: Refresh the administration page and the
+  gallery. The API responses disable caching, but a previously loaded browser
+  image can remain on screen until refresh.
+* **Azure Portal cannot browse the container**: This is expected while public
+  Storage networking is disabled. Use the administration page, which reaches
+  Blob Storage through the Function App's managed identity and private network.
 
 ## Pre-deployment checklist
 

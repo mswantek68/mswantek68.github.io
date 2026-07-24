@@ -1,0 +1,427 @@
+---
+layout: default
+title: "Birthday Photo Admin"
+description: "Manage original photos and videos from Dad's 90th birthday"
+permalink: /birthday90/admin/
+---
+
+<style>
+.admin-shell {
+  max-width: 1040px;
+  margin: 0 auto;
+  font-family: "Source Sans 3", "Segoe UI", sans-serif;
+}
+
+.admin-header,
+.admin-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.admin-header {
+  margin-bottom: 24px;
+}
+
+.admin-header h1 {
+  margin: 0;
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: clamp(1.8rem, 5vw, 2.6rem);
+}
+
+.admin-login,
+.admin-panel {
+  padding: 28px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--panel);
+  box-shadow: var(--shadow);
+}
+
+.admin-login {
+  max-width: 520px;
+  margin: 60px auto;
+}
+
+.admin-login label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 700;
+}
+
+.admin-login-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+}
+
+.admin-login input {
+  min-width: 0;
+  padding: 11px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--ink);
+  font: inherit;
+}
+
+.admin-button {
+  min-height: 42px;
+  padding: 9px 16px;
+  border: 1px solid rgba(45, 106, 109, .24);
+  border-radius: 6px;
+  background: var(--accent);
+  color: white;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.admin-button.secondary {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.admin-button.danger {
+  border-color: #a52834;
+  background: #a52834;
+}
+
+.admin-button:disabled {
+  cursor: not-allowed;
+  opacity: .5;
+}
+
+.admin-status {
+  min-height: 1.4em;
+  margin: 12px 0 0;
+  color: var(--muted);
+}
+
+.admin-status.error {
+  color: #a52834;
+}
+
+.admin-toolbar {
+  margin-bottom: 18px;
+}
+
+.admin-count {
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.admin-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.admin-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 14px;
+}
+
+.admin-item {
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+}
+
+.admin-preview {
+  position: relative;
+  display: grid;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  place-items: center;
+  overflow: hidden;
+  background: var(--accent-soft);
+}
+
+.admin-preview img,
+.admin-preview video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.admin-select {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  width: 24px;
+  height: 24px;
+  accent-color: var(--accent);
+}
+
+.admin-details {
+  padding: 12px;
+}
+
+.admin-name {
+  margin: 0 0 6px;
+  overflow-wrap: anywhere;
+  font-weight: 700;
+}
+
+.admin-meta {
+  margin: 0 0 12px;
+  color: var(--muted);
+  font-size: .86rem;
+}
+
+.admin-item-actions {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+}
+
+.admin-empty {
+  padding: 50px 20px;
+  color: var(--muted);
+  text-align: center;
+}
+
+@media (max-width: 560px) {
+  .admin-login,
+  .admin-panel {
+    padding: 18px;
+  }
+
+  .admin-login-row,
+  .admin-item-actions {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+
+<div class="admin-shell">
+  <div class="admin-header">
+    <h1>Photo Administration</h1>
+    <a href="/birthday90/gallery/">View gallery</a>
+  </div>
+
+  <form class="admin-login" id="adminLogin">
+    <label for="adminToken">Function access key</label>
+    <div class="admin-login-row">
+      <input id="adminToken" type="password" autocomplete="current-password" required>
+      <button class="admin-button" type="submit">Open photos</button>
+    </div>
+    <p class="admin-status" id="loginStatus">The key is kept only in this open page.</p>
+  </form>
+
+  <section class="admin-panel" id="adminPanel" hidden>
+    <div class="admin-toolbar">
+      <span class="admin-count" id="adminCount"></span>
+      <div class="admin-actions">
+        <button class="admin-button secondary" id="selectAll" type="button">Select all</button>
+        <button class="admin-button secondary" id="downloadSelected" type="button" disabled>Download selected</button>
+        <button class="admin-button secondary" id="refreshAdmin" type="button">Refresh</button>
+        <button class="admin-button danger" id="lockAdmin" type="button">Lock</button>
+      </div>
+    </div>
+    <p class="admin-status" id="adminStatus"></p>
+    <div class="admin-grid" id="adminGrid"></div>
+  </section>
+</div>
+
+<script>
+(() => {
+  const API_BASE = 'https://birthday90-api.azurewebsites.net/api';
+  const state = { token: '', photos: [] };
+  const login = document.getElementById('adminLogin');
+  const loginStatus = document.getElementById('loginStatus');
+  const panel = document.getElementById('adminPanel');
+  const grid = document.getElementById('adminGrid');
+  const count = document.getElementById('adminCount');
+  const status = document.getElementById('adminStatus');
+  const downloadSelected = document.getElementById('downloadSelected');
+
+  function headers() {
+    return { 'x-functions-key': state.token };
+  }
+
+  function formatBytes(bytes) {
+    if (!Number.isFinite(bytes) || bytes < 1) return '0 B';
+    const units = ['B', 'KB', 'MB', 'GB'];
+    const index = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1);
+    return `${(bytes / (1024 ** index)).toFixed(index ? 1 : 0)} ${units[index]}`;
+  }
+
+  function selectedPhotos() {
+    const names = new Set([...grid.querySelectorAll('.admin-select:checked')].map(input => input.value));
+    return state.photos.filter(photo => names.has(photo.name));
+  }
+
+  function updateSelection() {
+    const selected = selectedPhotos().length;
+    downloadSelected.disabled = selected === 0;
+    downloadSelected.textContent = selected ? `Download selected (${selected})` : 'Download selected';
+  }
+
+  function previewUrl(photo) {
+    const route = photo.thumbnailName ? 'thumbnail' : 'photo';
+    const name = photo.thumbnailName || photo.name;
+    return `${API_BASE}/${route}/${encodeURIComponent(name)}`;
+  }
+
+  function render() {
+    count.textContent = `${state.photos.length} original file${state.photos.length === 1 ? '' : 's'}`;
+    grid.replaceChildren();
+    if (!state.photos.length) {
+      const empty = document.createElement('p');
+      empty.className = 'admin-empty';
+      empty.textContent = 'No uploaded photos or videos remain.';
+      grid.append(empty);
+      return;
+    }
+
+    for (const photo of state.photos) {
+      const item = document.createElement('article');
+      item.className = 'admin-item';
+      const media = photo.contentType.startsWith('video/')
+        ? document.createElement('video')
+        : document.createElement('img');
+      media.src = previewUrl(photo);
+      media.loading = 'lazy';
+      media.alt = photo.originalName;
+
+      const preview = document.createElement('div');
+      preview.className = 'admin-preview';
+      const checkbox = document.createElement('input');
+      checkbox.className = 'admin-select';
+      checkbox.type = 'checkbox';
+      checkbox.value = photo.name;
+      checkbox.setAttribute('aria-label', `Select ${photo.originalName}`);
+      checkbox.addEventListener('change', updateSelection);
+      preview.append(media, checkbox);
+
+      const details = document.createElement('div');
+      details.className = 'admin-details';
+      const name = document.createElement('p');
+      name.className = 'admin-name';
+      name.textContent = photo.originalName;
+      const meta = document.createElement('p');
+      meta.className = 'admin-meta';
+      meta.textContent = `${formatBytes(photo.size)} · ${new Date(photo.lastModified).toLocaleString()}`;
+
+      const actions = document.createElement('div');
+      actions.className = 'admin-item-actions';
+      const download = document.createElement('button');
+      download.className = 'admin-button secondary';
+      download.type = 'button';
+      download.textContent = 'Download';
+      download.addEventListener('click', () => downloadPhoto(photo));
+      const remove = document.createElement('button');
+      remove.className = 'admin-button danger';
+      remove.type = 'button';
+      remove.textContent = 'Delete';
+      remove.addEventListener('click', () => deletePhoto(photo));
+      actions.append(download, remove);
+      details.append(name, meta, actions);
+      item.append(preview, details);
+      grid.append(item);
+    }
+    updateSelection();
+  }
+
+  async function loadPhotos() {
+    status.textContent = 'Loading originals…';
+    const response = await fetch(`${API_BASE}/admin/photos`, { headers: headers(), cache: 'no-store' });
+    if (response.status === 401 || response.status === 403) {
+      throw new Error('The Function access key was not accepted.');
+    }
+    if (!response.ok) throw new Error('The photo list could not be loaded.');
+    state.photos = await response.json();
+    status.textContent = '';
+    render();
+  }
+
+  async function downloadPhoto(photo) {
+    status.textContent = `Downloading ${photo.originalName}…`;
+    try {
+      const response = await fetch(
+        `${API_BASE}/admin/photos/${encodeURIComponent(photo.name)}/download`,
+        { headers: headers(), cache: 'no-store' }
+      );
+      if (!response.ok) throw new Error(`Could not download ${photo.originalName}.`);
+      const url = URL.createObjectURL(await response.blob());
+      const anchor = document.createElement('a');
+      anchor.href = url;
+      anchor.download = photo.originalName;
+      anchor.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      status.textContent = '';
+    } catch (error) {
+      status.textContent = error.message;
+      status.className = 'admin-status error';
+    }
+  }
+
+  async function deletePhoto(photo) {
+    if (!confirm(`Permanently delete “${photo.originalName}”?`)) return;
+    status.textContent = `Deleting ${photo.originalName}…`;
+    try {
+      const response = await fetch(`${API_BASE}/admin/photos/${encodeURIComponent(photo.name)}`, {
+        method: 'DELETE',
+        headers: headers(),
+      });
+      if (!response.ok) throw new Error(`Could not delete ${photo.originalName}.`);
+      state.photos = state.photos.filter(item => item.name !== photo.name);
+      status.textContent = `${photo.originalName} was deleted.`;
+      render();
+    } catch (error) {
+      status.textContent = error.message;
+      status.className = 'admin-status error';
+    }
+  }
+
+  login.addEventListener('submit', async event => {
+    event.preventDefault();
+    state.token = document.getElementById('adminToken').value;
+    loginStatus.textContent = 'Checking password…';
+    loginStatus.className = 'admin-status';
+    try {
+      await loadPhotos();
+      login.hidden = true;
+      panel.hidden = false;
+    } catch (error) {
+      state.token = '';
+      loginStatus.textContent = error.message;
+      loginStatus.className = 'admin-status error';
+    }
+  });
+
+  document.getElementById('refreshAdmin').addEventListener('click', () => loadPhotos().catch(error => {
+    status.textContent = error.message;
+    status.className = 'admin-status error';
+  }));
+
+  document.getElementById('selectAll').addEventListener('click', () => {
+    const boxes = [...grid.querySelectorAll('.admin-select')];
+    const select = boxes.some(box => !box.checked);
+    boxes.forEach(box => { box.checked = select; });
+    updateSelection();
+  });
+
+  downloadSelected.addEventListener('click', async () => {
+    for (const photo of selectedPhotos()) {
+      await downloadPhoto(photo);
+    }
+  });
+
+  document.getElementById('lockAdmin').addEventListener('click', () => {
+    state.token = '';
+    state.photos = [];
+    document.getElementById('adminToken').value = '';
+    panel.hidden = true;
+    login.hidden = false;
+    loginStatus.textContent = 'The key is kept only in this open page.';
+    loginStatus.className = 'admin-status';
+  });
+})();
+</script>
