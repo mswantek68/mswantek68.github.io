@@ -331,7 +331,7 @@ permalink: /birthday90/admin/
 
   async function loadPhotos() {
     status.textContent = 'Loading originals…';
-    const response = await fetch(`${API_BASE}/admin/photos`, { headers: headers(), cache: 'no-store' });
+    const response = await fetch(`${API_BASE}/manage/photos`, { headers: headers(), cache: 'no-store' });
     if (response.status === 401 || response.status === 403) {
       throw new Error('The admin access key was not accepted.');
     }
@@ -345,7 +345,7 @@ permalink: /birthday90/admin/
     status.textContent = `Downloading ${photo.originalName}…`;
     try {
       const response = await fetch(
-        `${API_BASE}/admin/photos/${encodeURIComponent(photo.name)}/download`,
+        `${API_BASE}/manage/photos/${encodeURIComponent(photo.name)}/download`,
         { headers: headers(), cache: 'no-store' }
       );
       if (!response.ok) throw new Error(`Could not download ${photo.originalName}.`);
@@ -366,7 +366,7 @@ permalink: /birthday90/admin/
     if (!confirm(`Permanently delete “${photo.originalName}”?`)) return;
     status.textContent = `Deleting ${photo.originalName}…`;
     try {
-      const response = await fetch(`${API_BASE}/admin/photos/${encodeURIComponent(photo.name)}`, {
+      const response = await fetch(`${API_BASE}/manage/photos/${encodeURIComponent(photo.name)}`, {
         method: 'DELETE',
         headers: headers(),
       });

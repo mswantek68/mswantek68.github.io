@@ -47,7 +47,7 @@ function isAuthorized(request) {
 app.http('AdminListPhotos', {
     methods: ['GET', 'OPTIONS'],
     authLevel: 'anonymous',
-    route: 'admin/photos',
+    route: 'manage/photos',
     handler: async (request, context) => {
         if (request.method === 'OPTIONS') {
             return { status: 204, headers: CORS_HEADERS };
@@ -85,7 +85,7 @@ app.http('AdminListPhotos', {
 app.http('AdminDownloadPhoto', {
     methods: ['GET', 'OPTIONS'],
     authLevel: 'anonymous',
-    route: 'admin/photos/{blobName}/download',
+    route: 'manage/photos/{blobName}/download',
     handler: async (request, context) => {
         if (request.method === 'OPTIONS') {
             return { status: 204, headers: CORS_HEADERS };
@@ -127,7 +127,7 @@ app.http('AdminDownloadPhoto', {
 app.http('AdminDeletePhoto', {
     methods: ['DELETE', 'OPTIONS'],
     authLevel: 'anonymous',
-    route: 'admin/photos/{blobName}',
+    route: 'manage/photos/{blobName}',
     handler: async (request, context) => {
         if (request.method === 'OPTIONS') {
             return { status: 204, headers: CORS_HEADERS };

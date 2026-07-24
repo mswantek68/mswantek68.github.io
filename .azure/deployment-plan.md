@@ -7,7 +7,7 @@ ms.topic: implementation-plan
 
 ## Status
 
-Validated
+Deployed
 
 ## Objective
 
@@ -200,6 +200,19 @@ Deployment completed on July 20, 2026 in the confirmed East US environment.
 * Confirmed media proxy returns `206` for a valid byte range
 * Confirmed media proxy returns `416` for an unsatisfiable byte range
 * Confirmed production Blob Data Contributor role after deployment
+
+### Administration deployment proof
+
+Administration deployment completed on July 23, 2026.
+
+* Published all three `/api/manage/photos` triggers with Azure Functions Core Tools
+* Stored `ADMIN_ACCESS_KEY` directly in Function App settings
+* Confirmed anonymous administration requests return `401`
+* Confirmed authorized listing returns `200` and four original media items
+* Confirmed CORS preflight returns `204` for `https://mikeswantek.com`
+* Confirmed the existing public gallery API still returns `200`
+* Kept Storage public network access disabled and shared-key access disabled
+* Performed no download, delete, or mutation request during verification
 
 ## Rollback
 

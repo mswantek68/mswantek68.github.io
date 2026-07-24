@@ -19,9 +19,9 @@ Azure Functions for the birthday90 photo/video upload app on mikeswantek.com.
 | `AuthorizeUpload` | `/api/authorize` | POST | Issues a signed upload token while the upload window is open |
 | `UploadStatus` | `/api/upload-status` | GET | Reports whether the configured upload window is open |
 | `GetThumbnail` | `/api/thumbnail/{blobName}` | GET | Proxies a private WebP thumbnail to the browser |
-| `AdminListPhotos` | `/api/admin/photos` | GET | Lists original media for administrators |
-| `AdminDownloadPhoto` | `/api/admin/photos/{blobName}/download` | GET | Downloads an original file as an attachment |
-| `AdminDeletePhoto` | `/api/admin/photos/{blobName}` | DELETE | Deletes an original and its generated thumbnail |
+| `AdminListPhotos` | `/api/manage/photos` | GET | Lists original media for administrators |
+| `AdminDownloadPhoto` | `/api/manage/photos/{blobName}/download` | GET | Downloads an original file as an attachment |
+| `AdminDeletePhoto` | `/api/manage/photos/{blobName}` | DELETE | Deletes an original and its generated thumbnail |
 
 ## Use the photo administration page
 
